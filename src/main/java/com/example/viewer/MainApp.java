@@ -78,6 +78,7 @@ public class MainApp extends Application {
         stage.setScene(scene);
         stage.setMinWidth(900);
         stage.setMinHeight(620);
+        stage.setMaximized(true);
         stage.show();
 
         subScene.widthProperty().bind(subSceneHolder.widthProperty());
@@ -174,12 +175,11 @@ public class MainApp extends Application {
 
     private MeshView createVaseMesh(VaseParameters params) {
         MeshView meshView = new MeshView(createVaseTriangleMesh(params));
-        meshView.setCullFace(CullFace.BACK);
+        meshView.setCullFace(CullFace.NONE);
         return meshView;
     }
 
     private TriangleMesh createVaseTriangleMesh(VaseParameters params) {
-        System.out.println("Creating vase triangle mesh with params: " + params);
         int radialSegments = params.radialSegments.get();
         int verticalSegments = 64;
         float totalHeight = (float) params.height.get();
@@ -258,7 +258,7 @@ public class MainApp extends Application {
             }
         }
 
-        // Also zaro perem (felul nyitott marad)
+        // Also zaro perem (falvastagsag kozti kitoltes)
         int outerBottom = 0;
         int innerBottom = innerOffset;
         for (int ri = 0; ri < radialSegments; ri++) {
@@ -269,7 +269,29 @@ public class MainApp extends Application {
             mesh.getFaces().addAll(ob0, 0, ib0, 0, ob1, 0);
             mesh.getFaces().addAll(ob1, 0, ib0, 0, ib1, 0);
         }
-        System.out.println("Created vase triangle mesh with " + mesh.getPoints().size() + " points and " + mesh.getFaces().size() + " faces");
+
+        // Felso zaro perem (tetejen a lyuk megmarad, csak a falvastagsag lesz lefedve)
+        int outerTop = verticalSegments * ringSize;
+        int innerTop = innerOffset + verticalSegments * ringSize;
+        for (int ri = 0; ri < radialSegments; ri++) {
+            int ot0 = outerTop + ri;
+            int ot1 = outerTop + ri + 1;
+            int it0 = innerTop + ri;
+            int it1 = innerTop + ri + 1;
+            mesh.getFaces().addAll(ot0, 0, ot1, 0, it0, 0);
+            mesh.getFaces().addAll(ot1, 0, it1, 0, it0, 0);
+        }
+
+        // Teljes also alaplemez: a belso gyuru korlapos lezarsa
+        float bottomCenterY = yValues[0];
+        int bottomCenterIndex = mesh.getPoints().size() / 3;
+        mesh.getPoints().addAll(0f, bottomCenterY, 0f);
+        for (int ri = 0; ri < radialSegments; ri++) {
+            int ib0 = innerBottom + ri;
+            int ib1 = innerBottom + ri + 1;
+            mesh.getFaces().addAll(bottomCenterIndex, 0, ib1, 0, ib0, 0);
+        }
+
         return mesh;
     }
 
