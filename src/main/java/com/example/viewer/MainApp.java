@@ -384,7 +384,16 @@ public class MainApp extends Application {
                 + 9f * (float) Math.sin(2.3 * Math.PI * t1 + 0.4)
                 - neckTaper * (float) Math.pow(t1, 1.4);
 
-        float attachY = Math.abs((r0 + r1) * 0.5f);
+        // Both arc endpoints (angle=0 and angle=pi) share the same local arcY term at the moment.
+        // If the vase radius differs at the two endpoint heights, only one side will match.
+        // We keep one endpoint correct and apply a smooth radial correction across the other half.
+        // Weight: w(0)=0, w(pi)=1 so the correction is 0 at one end and full at the other.
+        float d0 = Math.abs((t0 * totalHeight + yStart) - maxRadiusY);
+        float d1 = Math.abs((t1 * totalHeight + yStart) - maxRadiusY);
+        boolean baseIs0 = d0 <= d1;
+
+        float attachYBase = baseIs0 ? r0 : r1;
+        float deltaY = baseIs0 ? (r1 - r0) : (r0 - r1);
         
         TriangleMesh mesh = new TriangleMesh();
         mesh.getTexCoords().addAll(0f, 0f);
@@ -397,7 +406,10 @@ public class MainApp extends Application {
             // Arc path: half circle in the handle's local X/Y plane.
             // The attachY value is chosen so the two arc endpoints connect to the vase outer surface.
             float arcX = attachRadius + handleSize * (float) Math.cos(angle) - posX;
-            float arcY = attachY + handleSize * (float) Math.sin(angle); // Local Y (-> radial distance after Z rotation)
+
+            float w = 0.5f * (1f - (float) Math.cos(angle)); // 0 at angle=0, 1 at angle=pi
+            float wForOtherHalf = baseIs0 ? w : (1f - w);
+            float arcY = attachYBase + deltaY * wForOtherHalf + handleSize * (float) Math.sin(angle);
             float arcZ = 0; // Z position fixed at 0
             
             // Create circular cross-section at each arc point
