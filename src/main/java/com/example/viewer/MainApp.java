@@ -28,6 +28,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -37,10 +38,13 @@ public class MainApp extends Application {
     private double anchorAngleX;
     private double anchorAngleY;
     private VaseParameters currentParams;
+    private javafx.scene.AmbientLight ambientLight;
+    private javafx.scene.PointLight pointLight;
+    private Group worldGroup;
 
     @Override
     public void start(Stage stage) {
-        Group world = new Group();
+        worldGroup = new Group();
         Group objectGroup = new Group();
 
         currentParams = new VaseParameters();
@@ -70,14 +74,14 @@ public class MainApp extends Application {
         spout.setMaterial(spoutMaterial);
 
         objectGroup.getChildren().addAll(vase, spout, handle, lidDome, lidKnob);
-        world.getChildren().add(objectGroup);
+        worldGroup.getChildren().add(objectGroup);
 
-        var ambientLight = new javafx.scene.AmbientLight(Color.color(0.35, 0.35, 0.35));
-        var pointLight = new javafx.scene.PointLight(Color.WHITE);
+        ambientLight = new javafx.scene.AmbientLight(Color.color(0.35, 0.35, 0.35));
+        pointLight = new javafx.scene.PointLight(Color.WHITE);
         pointLight.setTranslateX(-300);
         pointLight.setTranslateY(-200);
         pointLight.setTranslateZ(-400);
-        world.getChildren().addAll(ambientLight, pointLight);
+        worldGroup.getChildren().addAll(ambientLight, pointLight);
 
         Rotate rotateX = new Rotate(-20, Rotate.X_AXIS);
         Rotate rotateY = new Rotate(-20, Rotate.Y_AXIS);
@@ -88,11 +92,11 @@ public class MainApp extends Application {
         camera.setNearClip(0.1);
         camera.setFarClip(5000);
 
-        SubScene subScene = new SubScene(world, 1000, 700, true, SceneAntialiasing.BALANCED);
+        SubScene subScene = new SubScene(worldGroup, 1000, 700, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.rgb(20, 20, 26));
         subScene.setCamera(camera);
 
-        setupMouseControls(subScene, rotateX, rotateY);
+        setupMouseControls(subScene, rotateX, rotateY, camera);
 
         StackPane subSceneHolder = new StackPane(subScene);
         BorderPane root = new BorderPane();
@@ -120,6 +124,9 @@ public class MainApp extends Application {
 
         subScene.widthProperty().bind(subSceneHolder.widthProperty());
         subScene.heightProperty().bind(subSceneHolder.heightProperty());
+        
+        // Initialize with random parameters on startup
+        randomizeParameters();
     }
 
     private MenuBar createMenuBar() {
@@ -127,10 +134,10 @@ public class MainApp extends Application {
         menuBar.setStyle("-fx-background-color: #2c2c36; -fx-border-color: #4a4a58; -fx-border-width: 0 0 1 0; -fx-pref-height: 30;");
         
         Menu fileMenu = new Menu("Fájl");
-        fileMenu.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 14px;");
+        fileMenu.setStyle("-fx-text-fill: #ffffff; -fx-background-color: transparent;");
         
         MenuItem newItem = new MenuItem("Új");
-        newItem.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 14px;");
+        newItem.setStyle("-fx-text-fill: #ffffff; -fx-background-color: transparent;");
         newItem.setOnAction(e -> randomizeParameters());
         
         fileMenu.getItems().add(newItem);
@@ -159,7 +166,7 @@ public class MainApp extends Application {
         params.knobRadius.set(10 + Math.random() * 10); // 10-20
         
         params.handleSize.set(20 + Math.random() * 60); // 20-80
-        params.handlePos.set(-20 + Math.random() * 150); // -20-130
+        params.handlePos.set(-140 + Math.random() * 280); // -140 to 140
         params.handleThickness.set(4 + Math.random() * 12); // 4-16
         
         // Generate random colors
@@ -186,13 +193,17 @@ public class MainApp extends Application {
             0.4 + Math.random() * 0.4,  // G: 0.4-0.8
             0.2 + Math.random() * 0.3   // B: 0.2-0.5
         ));
+        
+        // Randomize light states
+        params.ambientLightEnabled.set(Math.random() > 0.3); // 70% chance of being enabled
+        params.pointLightEnabled.set(Math.random() > 0.3);  // 70% chance of being enabled
     }
     
     private VaseParameters getCurrentParameters() {
         return currentParams;
     }
 
-    private void setupMouseControls(SubScene scene, Rotate rotateX, Rotate rotateY) {
+    private void setupMouseControls(SubScene scene, Rotate rotateX, Rotate rotateY, PerspectiveCamera camera) {
         scene.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
             anchorX = event.getSceneX();
             anchorY = event.getSceneY();
@@ -203,6 +214,19 @@ public class MainApp extends Application {
         scene.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             rotateX.setAngle(anchorAngleX - (event.getSceneY() - anchorY) * 0.45);
             rotateY.setAngle(anchorAngleY + (event.getSceneX() - anchorX) * 0.45);
+        });
+        
+        // Add zoom functionality with mouse wheel
+        scene.setOnScroll(event -> {
+            double zoomFactor = event.getDeltaY() > 0 ? 0.9 : 1.1;
+            double currentZ = camera.getTranslateZ();
+            double newZ = currentZ * zoomFactor;
+            
+            // Constrain zoom limits
+            if (newZ > -200) newZ = -200;  // Max zoom in
+            if (newZ < -2000) newZ = -2000; // Max zoom out
+            
+            camera.setTranslateZ(newZ);
         });
     }
 
@@ -228,6 +252,14 @@ public class MainApp extends Application {
         panel.getChildren().add(createColorControl("Fogo színe", params.handleColor, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createColorControl("Teto félgömb színe", params.lidDomeColor, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createColorControl("Teto fogó színe", params.lidKnobColor, vase, spout, handle, lidDome, lidKnob, params));
+        
+        // Light controls section
+        Label lightTitle = new Label("Fények");
+        lightTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
+        panel.getChildren().add(lightTitle);
+        
+        panel.getChildren().add(createToggleControl("Környezeti fény", params.ambientLightEnabled));
+        panel.getChildren().add(createToggleControl("Pont fényforrás", params.pointLightEnabled));
         panel.getChildren().add(createSliderControl("Magassag", params.height, 170, 280, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Falvastagsag", params.wallThickness, 4, 10, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Hasasodas", params.bellyAmount, 6, 46, vase, spout, handle, lidDome, lidKnob, params));
@@ -253,7 +285,7 @@ public class MainApp extends Application {
         handleTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(handleTitle);
         panel.getChildren().add(createSliderControl("Fogo meret", params.handleSize, 20, 80, vase, spout, handle, lidDome, lidKnob, params));
-        panel.getChildren().add(createSliderControl("Fogo pozicio", params.handlePos, -20, 130, vase, spout, handle, lidDome, lidKnob, params));
+        panel.getChildren().add(createSliderControl("Fogo pozicio", params.handlePos, -140, 140, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Fogo vastagsag", params.handleThickness, 4, 16, vase, spout, handle, lidDome, lidKnob, params));
         
 
@@ -335,6 +367,39 @@ public class MainApp extends Application {
         });
 
         return new VBox(4, label, slider);
+    }
+
+    private HBox createToggleControl(String labelText, javafx.beans.property.BooleanProperty property) {
+        Label label = new Label(labelText);
+        label.setStyle("-fx-text-fill: #e7e7e7; -fx-font-size: 14px;");
+        label.setPrefWidth(120);
+        
+        CheckBox checkBox = new CheckBox();
+        checkBox.setSelected(property.get());
+        checkBox.setStyle("-fx-background-color: #3c3c46; -fx-border-color: #5a5a68;");
+        
+        checkBox.selectedProperty().bindBidirectional(property);
+        checkBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            updateLightsVisibility();
+        });
+        
+        HBox hbox = new HBox(10, label, checkBox);
+        hbox.setStyle("-fx-alignment: center-left;");
+        return hbox;
+    }
+    
+    private void updateLightsVisibility() {
+        // Remove existing lights
+        worldGroup.getChildren().remove(ambientLight);
+        worldGroup.getChildren().remove(pointLight);
+        
+        // Add lights back based on their enabled state
+        if (currentParams.ambientLightEnabled.get()) {
+            worldGroup.getChildren().add(ambientLight);
+        }
+        if (currentParams.pointLightEnabled.get()) {
+            worldGroup.getChildren().add(pointLight);
+        }
     }
 
     private VBox createSliderControl(
@@ -538,7 +603,7 @@ public class MainApp extends Application {
 
         int ringSize = radialSegments + 1;
 
-        // Create spout geometry only where spoutWeight > threshold
+        // Create spout geometry with smooth blending
         for (int yi = 0; yi <= verticalSegments; yi++) {
             float t = (float) yi / verticalSegments;
             float y = yValues[yi];
@@ -547,17 +612,12 @@ public class MainApp extends Application {
                 double angle = 2.0 * Math.PI * ri / radialSegments;
                 float spoutWeight = computeSpoutWeight(t, angle, params);
                 
-                // Only add points where spout is significant
-                if (spoutWeight > 0.1f) {
-                    float radius = baseRadius + (float) params.spoutLength.get() * spoutWeight;
-                    float liftedY = y + (float) params.spoutLift.get() * spoutWeight;
-                    float x = (float) (radius * Math.cos(angle));
-                    float z = (float) (radius * Math.sin(angle));
-                    mesh.getPoints().addAll(x, liftedY, z);
-                } else {
-                    // Add dummy point to maintain index structure
-                    mesh.getPoints().addAll(0f, 0f, 0f);
-                }
+                // Always add points, but use spout weight for smooth blending
+                float radius = baseRadius + (float) params.spoutLength.get() * spoutWeight;
+                float liftedY = y + (float) params.spoutLift.get() * spoutWeight;
+                float x = (float) (radius * Math.cos(angle));
+                float z = (float) (radius * Math.sin(angle));
+                mesh.getPoints().addAll(x, liftedY, z);
             }
         }
 
@@ -569,21 +629,8 @@ public class MainApp extends Application {
                 int p2 = p0 + ringSize;
                 int p3 = p2 + 1;
                 
-                // Only add faces where spout is significant
-                double angle1 = 2.0 * Math.PI * ri / radialSegments;
-                double angle2 = 2.0 * Math.PI * (ri + 1) / radialSegments;
-                float t1 = (float) yi / verticalSegments;
-                float t2 = (float) (yi + 1) / verticalSegments;
-                
-                float weight1 = computeSpoutWeight(t1, angle1, params);
-                float weight2 = computeSpoutWeight(t1, angle2, params);
-                float weight3 = computeSpoutWeight(t2, angle1, params);
-                float weight4 = computeSpoutWeight(t2, angle2, params);
-                
-                if (weight1 > 0.1f || weight2 > 0.1f || weight3 > 0.1f || weight4 > 0.1f) {
-                    mesh.getFaces().addAll(p0, 0, p2, 0, p1, 0);
-                    mesh.getFaces().addAll(p1, 0, p2, 0, p3, 0);
-                }
+                mesh.getFaces().addAll(p0, 0, p2, 0, p1, 0);
+                mesh.getFaces().addAll(p1, 0, p2, 0, p3, 0);
             }
         }
 
@@ -852,14 +899,27 @@ public class MainApp extends Application {
         final DoubleProperty handleSize = new SimpleDoubleProperty(40);
         final DoubleProperty handleThickness = new SimpleDoubleProperty(8);
         
-        // Handle position parameter
-        final DoubleProperty handlePos = new SimpleDoubleProperty(0);
+        // Handle position parameter (constrained to vase height)
+        final DoubleProperty handlePos = new SimpleDoubleProperty(0) {
+            @Override
+            public void set(double value) {
+                // Constrain to vase height range
+                double minHeight = -height.get() / 2;
+                double maxHeight = height.get() / 2;
+                double constrainedValue = Math.max(minHeight, Math.min(maxHeight, value));
+                super.set(constrainedValue);
+            }
+        };
         
         // Color properties for each part
         final javafx.beans.property.ObjectProperty<Color> bodyColor = new javafx.beans.property.SimpleObjectProperty<>(Color.rgb(210, 130, 80));
         final javafx.beans.property.ObjectProperty<Color> handleColor = new javafx.beans.property.SimpleObjectProperty<>(Color.rgb(180, 100, 60));
         final javafx.beans.property.ObjectProperty<Color> lidDomeColor = new javafx.beans.property.SimpleObjectProperty<>(Color.rgb(196, 116, 72));
         final javafx.beans.property.ObjectProperty<Color> lidKnobColor = new javafx.beans.property.SimpleObjectProperty<>(Color.rgb(220, 140, 80));
+        
+        // Light toggle properties
+        final javafx.beans.property.BooleanProperty ambientLightEnabled = new javafx.beans.property.SimpleBooleanProperty(true);
+        final javafx.beans.property.BooleanProperty pointLightEnabled = new javafx.beans.property.SimpleBooleanProperty(true);
     }
 
     public static void main(String[] args) {
