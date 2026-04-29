@@ -329,20 +329,36 @@ public class MainApp extends Application {
         
         float handleSize = (float) params.handleSize.get();
         float handleThickness = (float) params.handleThickness.get();
-        float pos = (float) params.handlePos.get();
+        float posX = (float) params.handlePos.get();
         float totalHeight = (float) params.height.get();
         float baseRadius = (float) params.baseRadius.get();
         float bellyAmount = (float) params.bellyAmount.get();
         float neckTaper = (float) params.neckTaper.get();
         
-        // Use middle height for attachment point
-        float attachY = -totalHeight / 2f + 0.5f * totalHeight;
-        float t = 0.5f; // Always attach at middle height
+        // Find the actual vase edge point where handle should attach
+        float yStart = -totalHeight / 2f;
+        float attachY = 0;
+        float attachRadius = 0;
         
-        // Calculate vase radius at middle height for base X position
-        float vaseRadius = baseRadius + bellyAmount * (float) Math.sin(Math.PI * t) 
+        // Find the point where vase has maximum radius (the "edge")
+        float maxRadius = 0;
+        float maxRadiusY = yStart;
+        
+        for (int i = 0; i <= 100; i++) {
+            float t = (float) i / 100;
+            float y = yStart + t * totalHeight;
+            float radius = baseRadius + bellyAmount * (float) Math.sin(Math.PI * t) 
                           + 9f * (float) Math.sin(2.3 * Math.PI * t + 0.4)
-                          - neckTaper * (float) Math.pow(t, 1.4f);
+                          - neckTaper * (float) Math.pow(t, 1.4);
+            
+            if (radius > maxRadius) {
+                maxRadius = radius;
+                maxRadiusY = y;
+            }
+        }
+        
+        attachY = maxRadiusY;
+        attachRadius = maxRadius;
         
         TriangleMesh mesh = new TriangleMesh();
         mesh.getTexCoords().addAll(0f, 0f);
@@ -352,10 +368,17 @@ public class MainApp extends Application {
             float arcT = (float) i / segments;
             float angle = (float) Math.PI * arcT; // Half circle arc
             
-            // Arc path: vertical handle that attaches to vase surface
-            // Handle position controlled by X parameter only
-            float arcX = vaseRadius + handleSize * (float) Math.cos(angle) - pos; // Arc extends outward from vase + X offset
-            float arcY = attachY + handleSize * (float) Math.sin(angle); // Arc moves vertically on Y axis (fixed)
+            // Arc path: vertical handle that attaches to vase surface at one end
+            // Handle position controlled only by X parameter, Y calculated automatically
+            float arcX;
+            if (angle == 0) {
+                // At attachment point, exactly at vase surface
+                arcX = attachRadius - posX;
+            } else {
+                // Extend outward for the rest of the arc
+                arcX = attachRadius + handleSize * (float) Math.cos(angle) - posX;
+            }
+            float arcY = attachY + handleSize * (float) Math.sin(angle); // Arc moves vertically from attachment point
             float arcZ = 0; // Z position fixed at 0
             
             // Create circular cross-section at each arc point
@@ -406,7 +429,7 @@ public class MainApp extends Application {
         final DoubleProperty handleSize = new SimpleDoubleProperty(40);
         final DoubleProperty handleThickness = new SimpleDoubleProperty(8);
         
-        // Handle position parameter (X only)
+        // Handle position parameter
         final DoubleProperty handlePos = new SimpleDoubleProperty(0);
     }
 
