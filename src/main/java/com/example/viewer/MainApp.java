@@ -41,6 +41,11 @@ public class MainApp extends Application {
     private javafx.scene.AmbientLight ambientLight;
     private javafx.scene.PointLight pointLight;
     private Group worldGroup;
+    private MeshView vaseMesh;
+    private MeshView spoutMesh;
+    private MeshView handleMesh;
+    private MeshView lidDomeMesh;
+    private MeshView lidKnobMesh;
 
     @Override
     public void start(Stage stage) {
@@ -49,31 +54,31 @@ public class MainApp extends Application {
 
         currentParams = new VaseParameters();
 
-        MeshView vase = createVaseMesh(currentParams);
+        vaseMesh = createVaseMesh(currentParams);
         PhongMaterial vaseMaterial = new PhongMaterial(currentParams.bodyColor.get());
-        vase.setMaterial(vaseMaterial);
+        vaseMesh.setMaterial(vaseMaterial);
         
-        MeshView handle = createHandleMesh(currentParams);
+        handleMesh = createHandleMesh(currentParams);
         PhongMaterial handleMaterial = new PhongMaterial(currentParams.handleColor.get());
-        handle.setMaterial(handleMaterial);
+        handleMesh.setMaterial(handleMaterial);
         Rotate handleRotation = new Rotate(-90, Rotate.Z_AXIS);
-        handle.getTransforms().add(handleRotation);
+        handleMesh.getTransforms().add(handleRotation);
 
         // Create separate meshes for lid dome and knob
-        MeshView lidDome = createLidDomeMesh(currentParams);
+        lidDomeMesh = createLidDomeMesh(currentParams);
         PhongMaterial lidDomeMaterial = new PhongMaterial(currentParams.lidDomeColor.get());
-        lidDome.setMaterial(lidDomeMaterial);
+        lidDomeMesh.setMaterial(lidDomeMaterial);
         
-        MeshView lidKnob = createLidKnobMesh(currentParams);
+        lidKnobMesh = createLidKnobMesh(currentParams);
         PhongMaterial lidKnobMaterial = new PhongMaterial(currentParams.lidKnobColor.get());
-        lidKnob.setMaterial(lidKnobMaterial);
+        lidKnobMesh.setMaterial(lidKnobMaterial);
         
         // Create separate mesh for spout part
-        MeshView spout = createSpoutMesh(currentParams);
+        spoutMesh = createSpoutMesh(currentParams);
         PhongMaterial spoutMaterial = new PhongMaterial(currentParams.bodyColor.get());
-        spout.setMaterial(spoutMaterial);
+        spoutMesh.setMaterial(spoutMaterial);
 
-        objectGroup.getChildren().addAll(vase, spout, handle, lidDome, lidKnob);
+        objectGroup.getChildren().addAll(vaseMesh, spoutMesh, handleMesh, lidDomeMesh, lidKnobMesh);
         worldGroup.getChildren().add(objectGroup);
 
         ambientLight = new javafx.scene.AmbientLight(Color.color(0.35, 0.35, 0.35));
@@ -103,7 +108,7 @@ public class MainApp extends Application {
         root.setTop(createMenuBar());
         root.setCenter(subSceneHolder);
         
-        ScrollPane controlPanel = createControlPanel(currentParams, vase, spout, handle, lidDome, lidKnob);
+        ScrollPane controlPanel = createControlPanel(currentParams, vaseMesh, spoutMesh, handleMesh, lidDomeMesh, lidKnobMesh);
         root.setRight(controlPanel);
         root.setStyle("-fx-background-color: #1a1a22;");
         
@@ -197,6 +202,18 @@ public class MainApp extends Application {
         // Randomize light states
         params.ambientLightEnabled.set(Math.random() > 0.3); // 70% chance of being enabled
         params.pointLightEnabled.set(Math.random() > 0.3);  // 70% chance of being enabled
+        
+        // Update mesh colors to reflect the new random colors
+        updateMeshColorsAfterRandomization();
+    }
+    
+    private void updateMeshColorsAfterRandomization() {
+        // Update mesh colors directly using stored references
+        ((PhongMaterial) vaseMesh.getMaterial()).setDiffuseColor(currentParams.bodyColor.get());
+        ((PhongMaterial) spoutMesh.getMaterial()).setDiffuseColor(currentParams.bodyColor.get()); // Spout uses body color
+        ((PhongMaterial) handleMesh.getMaterial()).setDiffuseColor(currentParams.handleColor.get());
+        ((PhongMaterial) lidDomeMesh.getMaterial()).setDiffuseColor(currentParams.lidDomeColor.get());
+        ((PhongMaterial) lidKnobMesh.getMaterial()).setDiffuseColor(currentParams.lidKnobColor.get());
     }
     
     private VaseParameters getCurrentParameters() {
@@ -557,16 +574,31 @@ public class MainApp extends Application {
             mesh.getFaces().addAll(ob1, 0, ib0, 0, ib1, 0);
         }
 
-        // Felso zaro perem (tetejen a lyuk megmarad, csak a falvastagsag lesz lefedve)
+        // Felso zaro perem (teljesen lezarjuk a tetejet)
         int outerTop = verticalSegments * ringSize;
         int innerTop = innerOffset + verticalSegments * ringSize;
+        
+        // Add top center point for complete closure
+        float topY = yValues[verticalSegments];
+        float topRadius = baseOuterRadius[verticalSegments];
+        int topCenterIndex = mesh.getPoints().size() / 3;
+        mesh.getPoints().addAll(0f, topY, 0f);
+        
+        // Create triangles from outer ring to center point
+        for (int ri = 0; ri < radialSegments; ri++) {
+            int ot0 = outerTop + ri;
+            int ot1 = outerTop + ri + 1;
+            mesh.getFaces().addAll(ot0, 0, ot1, 0, topCenterIndex, 0);
+        }
+        
+        // Also create rim thickness closure (optional, for better appearance)
         for (int ri = 0; ri < radialSegments; ri++) {
             int ot0 = outerTop + ri;
             int ot1 = outerTop + ri + 1;
             int it0 = innerTop + ri;
             int it1 = innerTop + ri + 1;
-            mesh.getFaces().addAll(ot0, 0, ot1, 0, it0, 0);
-            mesh.getFaces().addAll(ot1, 0, it1, 0, it0, 0);
+            mesh.getFaces().addAll(ot0, 0, it0, 0, ot1, 0);
+            mesh.getFaces().addAll(ot1, 0, it0, 0, it1, 0);
         }
 
         // Teljes also alaplemez: a belso gyuru korlapos lezarsa
