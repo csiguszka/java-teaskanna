@@ -121,7 +121,7 @@ public class MainApp extends Application {
 
         panel.getChildren().add(title);
         panel.getChildren().add(createSliderControl("Magassag", params.height, 170, 280, vase, handle, lid, params));
-        panel.getChildren().add(createSliderControl("Falvastagsag", params.wallThickness, 4, 28, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Falvastagsag", params.wallThickness, 4, 10, vase, handle, lid, params));
         panel.getChildren().add(createSliderControl("Hasasodas", params.bellyAmount, 6, 46, vase, handle, lid, params));
         panel.getChildren().add(createSliderControl("Nyakszukules", params.neckTaper, 0, 22, vase, handle, lid, params));
         panel.getChildren().add(createSliderControl("Also sugar", params.baseRadius, 30, 62, vase, handle, lid, params));
@@ -138,7 +138,6 @@ public class MainApp extends Application {
         lidTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(lidTitle);
         panel.getChildren().add(createSliderControl("Teto magassag", params.lidHeight, 20, 56, vase, handle, lid, params));
-        panel.getChildren().add(createSliderControl("Teto perem", params.lidInset, 2, 22, vase, handle, lid, params));
         panel.getChildren().add(createSliderControl("Fogo magassag", params.knobHeight, 8, 42, vase, handle, lid, params));
         panel.getChildren().add(createSliderControl("Fogo sugar", params.knobRadius, 10, 20, vase, handle, lid, params));
         
@@ -146,9 +145,9 @@ public class MainApp extends Application {
         handleTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(handleTitle);
         panel.getChildren().add(createSliderControl("Fogo meret", params.handleSize, 20, 80, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Fogo pozicio", params.handlePos, -20, 130, vase, handle, lid, params));
         panel.getChildren().add(createSliderControl("Fogo vastagsag", params.handleThickness, 4, 16, vase, handle, lid, params));
         
-        panel.getChildren().add(createSliderControl("Fogo pozicio", params.handlePos, -20, 130, vase, handle, lid, params));
 
         ScrollPane scrollPane = new ScrollPane(panel);
         scrollPane.setFitToWidth(true);
@@ -502,7 +501,7 @@ public class MainApp extends Application {
         float topY = yStart + totalHeight;
 
         float topRadius = vaseProfileRadius(1f, params);
-        float lidBaseRadius = Math.max(10f, topRadius - (float) params.lidInset.get());
+        float lidBaseRadius = topRadius;
         float lidHeight = (float) params.lidHeight.get();
         float knobHeight = (float) params.knobHeight.get();
         float knobRadius = (float) params.knobRadius.get();
@@ -600,7 +599,6 @@ public class MainApp extends Application {
         final DoubleProperty spoutLift = new SimpleDoubleProperty(7);
 
         final DoubleProperty lidHeight = new SimpleDoubleProperty(30);
-        final DoubleProperty lidInset = new SimpleDoubleProperty(7);
         final DoubleProperty knobHeight = new SimpleDoubleProperty(20);
         final DoubleProperty knobRadius = new SimpleDoubleProperty(12);
         
