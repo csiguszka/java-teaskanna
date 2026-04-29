@@ -47,7 +47,10 @@ public class MainApp extends Application {
         Rotate handleRotation = new Rotate(-90, Rotate.Z_AXIS);
         handle.getTransforms().add(handleRotation);
 
-        objectGroup.getChildren().addAll(vase, handle);
+        MeshView lid = createLidMesh(params);
+        lid.setMaterial(new PhongMaterial(Color.rgb(196, 116, 72)));
+
+        objectGroup.getChildren().addAll(vase, handle, lid);
         world.getChildren().add(objectGroup);
 
         var ambientLight = new javafx.scene.AmbientLight(Color.color(0.35, 0.35, 0.35));
@@ -75,7 +78,7 @@ public class MainApp extends Application {
         StackPane subSceneHolder = new StackPane(subScene);
         BorderPane root = new BorderPane();
         root.setCenter(subSceneHolder);
-        root.setRight(createControlPanel(params, vase, handle));
+        root.setRight(createControlPanel(params, vase, handle, lid));
         root.setStyle("-fx-background-color: #1a1a22;");
         Scene scene = new Scene(root, 1000, 700, true);
         scene.setFill(Color.rgb(20, 20, 26));
@@ -105,7 +108,7 @@ public class MainApp extends Application {
         });
     }
 
-    private ScrollPane createControlPanel(VaseParameters params, MeshView vase, MeshView handle) {
+    private ScrollPane createControlPanel(VaseParameters params, MeshView vase, MeshView handle, MeshView lid) {
         VBox panel = new VBox(10);
         panel.setPadding(new Insets(14));
         panel.setPrefWidth(300);
@@ -117,27 +120,35 @@ public class MainApp extends Application {
         title.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold;");
 
         panel.getChildren().add(title);
-        panel.getChildren().add(createSliderControl("Magassag", params.height, 170, 280, vase, handle, params));
-        panel.getChildren().add(createSliderControl("Falvastagsag", params.wallThickness, 4, 28, vase, handle, params));
-        panel.getChildren().add(createSliderControl("Hasasodas", params.bellyAmount, 6, 46, vase, handle, params));
-        panel.getChildren().add(createSliderControl("Nyakszukules", params.neckTaper, 0, 22, vase, handle, params));
-        panel.getChildren().add(createSliderControl("Also sugar", params.baseRadius, 30, 62, vase, handle, params));
-        panel.getChildren().add(createSliderControl("Felbontas", params.radialSegments, 24, 128, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Magassag", params.height, 170, 280, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Falvastagsag", params.wallThickness, 4, 28, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Hasasodas", params.bellyAmount, 6, 46, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Nyakszukules", params.neckTaper, 0, 22, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Also sugar", params.baseRadius, 30, 62, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Felbontas", params.radialSegments, 24, 128, vase, handle, lid, params));
 
         Label spoutTitle = new Label("Kionto parameterek");
         spoutTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(spoutTitle);
-        panel.getChildren().add(createSliderControl("Kionto hossza", params.spoutLength, 0, 30, vase, handle, params));
-        panel.getChildren().add(createSliderControl("Kionto szelesseg", params.spoutWidth, 20, 120, vase, handle, params));
-        panel.getChildren().add(createSliderControl("Ajak emeles", params.spoutLift, -20, 18, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Kionto hossza", params.spoutLength, 4, 30, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Kionto szelesseg", params.spoutWidth, 15, 120, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Ajak emeles", params.spoutLift, -20, 18, vase, handle, lid, params));
+
+        Label lidTitle = new Label("Teto parameterek");
+        lidTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
+        panel.getChildren().add(lidTitle);
+        panel.getChildren().add(createSliderControl("Teto magassag", params.lidHeight, 20, 56, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Teto perem", params.lidInset, 2, 22, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Fogo magassag", params.knobHeight, 8, 42, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Fogo sugar", params.knobRadius, 10, 20, vase, handle, lid, params));
         
         Label handleTitle = new Label("Fogo parameterek");
         handleTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(handleTitle);
-        panel.getChildren().add(createSliderControl("Fogo meret", params.handleSize, 20, 80, vase, handle, params));
-        panel.getChildren().add(createSliderControl("Fogo vastagsag", params.handleThickness, 4, 16, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Fogo meret", params.handleSize, 20, 80, vase, handle, lid, params));
+        panel.getChildren().add(createSliderControl("Fogo vastagsag", params.handleThickness, 4, 16, vase, handle, lid, params));
         
-        panel.getChildren().add(createSliderControl("Fogo pozicio", params.handlePos, -20, 130, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Fogo pozicio", params.handlePos, -20, 130, vase, handle, lid, params));
 
         ScrollPane scrollPane = new ScrollPane(panel);
         scrollPane.setFitToWidth(true);
@@ -146,6 +157,8 @@ public class MainApp extends Application {
         scrollPane.setMaxWidth(300);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setPannable(true);
+        scrollPane.setFitToHeight(true);
         scrollPane.setStyle("-fx-background: #2c2c36; -fx-background-color: #2c2c36;");
         return scrollPane;
     }
@@ -157,6 +170,7 @@ public class MainApp extends Application {
             double max,
             MeshView vase,
             MeshView handle,
+            MeshView lid,
             VaseParameters params
     ) {
         Slider slider = new Slider(min, max, property.get());
@@ -170,6 +184,7 @@ public class MainApp extends Application {
         property.addListener((obs, oldVal, newVal) -> {
             vase.setMesh(createVaseTriangleMesh(params));
             handle.setMesh(createHandleTriangleMesh(params));
+            lid.setMesh(createLidTriangleMesh(params));
         });
 
         return new VBox(4, label, slider);
@@ -182,6 +197,7 @@ public class MainApp extends Application {
             int max,
             MeshView vase,
             MeshView handle,
+            MeshView lid,
             VaseParameters params
     ) {
         Slider slider = new Slider(min, max, property.get());
@@ -197,6 +213,7 @@ public class MainApp extends Application {
         property.addListener((obs, oldVal, newVal) -> {
             vase.setMesh(createVaseTriangleMesh(params));
             handle.setMesh(createHandleTriangleMesh(params));
+            lid.setMesh(createLidTriangleMesh(params));
         });
 
         return new VBox(4, label, slider);
@@ -210,6 +227,12 @@ public class MainApp extends Application {
 
     private MeshView createHandleMesh(VaseParameters params) {
         MeshView meshView = new MeshView(createHandleTriangleMesh(params));
+        meshView.setCullFace(CullFace.NONE);
+        return meshView;
+    }
+
+    private MeshView createLidMesh(VaseParameters params) {
+        MeshView meshView = new MeshView(createLidTriangleMesh(params));
         meshView.setCullFace(CullFace.NONE);
         return meshView;
     }
@@ -343,7 +366,7 @@ public class MainApp extends Application {
         float topMask = smoothStep(0.68f, 1.0f, t);
         float widthRad = (float) Math.toRadians(params.spoutWidth.get() * 0.5);
         widthRad = Math.max(0.12f, widthRad);
-        float centeredAngle = (float) Math.atan2(Math.sin(angle), Math.cos(angle));
+        float centeredAngle = (float) Math.atan2(Math.sin(angle - Math.PI), Math.cos(angle - Math.PI));
         float angularMask = (float) Math.exp(-Math.pow(centeredAngle / widthRad, 2.0));
         return topMask * angularMask;
     }
@@ -469,6 +492,101 @@ public class MainApp extends Application {
         return mesh;
     }
 
+    private TriangleMesh createLidTriangleMesh(VaseParameters params) {
+        int radialSegments = Math.max(24, params.radialSegments.get());
+        int domeRings = 18;
+        int ringSize = radialSegments + 1;
+
+        float totalHeight = (float) params.height.get();
+        float yStart = -totalHeight / 2f;
+        float topY = yStart + totalHeight;
+
+        float topRadius = vaseProfileRadius(1f, params);
+        float lidBaseRadius = Math.max(10f, topRadius - (float) params.lidInset.get());
+        float lidHeight = (float) params.lidHeight.get();
+        float knobHeight = (float) params.knobHeight.get();
+        float knobRadius = (float) params.knobRadius.get();
+        float lidBottomY = topY + 0.6f;
+
+        TriangleMesh mesh = new TriangleMesh();
+        mesh.getTexCoords().addAll(0f, 0f);
+
+        // Dome rings: gently stepped profile, richer than a plain truncated hemisphere.
+        for (int yi = 0; yi <= domeRings; yi++) {
+            float t = (float) yi / domeRings;
+            float y = lidBottomY + t * lidHeight;
+            float profile = (float) Math.pow(Math.max(0f, 1f - t * t), 0.62);
+            float ridge = 1.0f + 0.08f * (float) Math.sin(4.0 * Math.PI * t) * (1f - t);
+            float radius = Math.max(lidBaseRadius * 0.22f, lidBaseRadius * profile * ridge);
+
+            for (int ri = 0; ri <= radialSegments; ri++) {
+                double angle = 2.0 * Math.PI * ri / radialSegments;
+                float x = (float) (radius * Math.cos(angle));
+                float z = (float) (radius * Math.sin(angle));
+                mesh.getPoints().addAll(x, y, z);
+            }
+        }
+
+        for (int yi = 0; yi < domeRings; yi++) {
+            for (int ri = 0; ri < radialSegments; ri++) {
+                int p0 = yi * ringSize + ri;
+                int p1 = p0 + 1;
+                int p2 = p0 + ringSize;
+                int p3 = p2 + 1;
+                mesh.getFaces().addAll(p0, 0, p2, 0, p1, 0);
+                mesh.getFaces().addAll(p1, 0, p2, 0, p3, 0);
+            }
+        }
+
+        int domeTopStart = domeRings * ringSize;
+        float knobBottomY = lidBottomY + lidHeight - 1.2f;
+        float knobTopY = knobBottomY + knobHeight;
+        float knobTopRadius = knobRadius * 0.78f;
+        int knobStart = mesh.getPoints().size() / 3;
+
+        // Truncated hexagonal knob.
+        for (int ring = 0; ring <= 1; ring++) {
+            float y = ring == 0 ? knobBottomY : knobTopY;
+            float r = ring == 0 ? knobRadius : knobTopRadius;
+            for (int i = 0; i <= 6; i++) {
+                double angle = 2.0 * Math.PI * i / 6.0 + Math.PI / 6.0;
+                float x = (float) (r * Math.cos(angle));
+                float z = (float) (r * Math.sin(angle));
+                mesh.getPoints().addAll(x, y, z);
+            }
+        }
+
+        int hexRingSize = 7;
+        for (int i = 0; i < 6; i++) {
+            int b0 = knobStart + i;
+            int b1 = knobStart + i + 1;
+            int t0 = knobStart + hexRingSize + i;
+            int t1 = knobStart + hexRingSize + i + 1;
+            mesh.getFaces().addAll(b0, 0, t0, 0, b1, 0);
+            mesh.getFaces().addAll(b1, 0, t0, 0, t1, 0);
+        }
+
+        int topCenter = mesh.getPoints().size() / 3;
+        mesh.getPoints().addAll(0f, knobTopY, 0f);
+        for (int i = 0; i < 6; i++) {
+            int t0 = knobStart + hexRingSize + i;
+            int t1 = knobStart + hexRingSize + i + 1;
+            mesh.getFaces().addAll(topCenter, 0, t0, 0, t1, 0);
+        }
+
+        // Connect dome top and knob bottom to form a seated joint.
+        for (int i = 0; i < radialSegments; i++) {
+            int d0 = domeTopStart + i;
+            int d1 = domeTopStart + i + 1;
+            int h0 = knobStart + Math.round((float) i / radialSegments * 6f);
+            int h1 = knobStart + Math.round((float) (i + 1) / radialSegments * 6f);
+            mesh.getFaces().addAll(d0, 0, h0, 0, d1, 0);
+            mesh.getFaces().addAll(d1, 0, h0, 0, h1, 0);
+        }
+
+        return mesh;
+    }
+
     private static class VaseParameters {
         final DoubleProperty height = new SimpleDoubleProperty(260);
         final DoubleProperty wallThickness = new SimpleDoubleProperty(10);
@@ -480,6 +598,11 @@ public class MainApp extends Application {
         final DoubleProperty spoutLength = new SimpleDoubleProperty(12);
         final DoubleProperty spoutWidth = new SimpleDoubleProperty(70);
         final DoubleProperty spoutLift = new SimpleDoubleProperty(7);
+
+        final DoubleProperty lidHeight = new SimpleDoubleProperty(30);
+        final DoubleProperty lidInset = new SimpleDoubleProperty(7);
+        final DoubleProperty knobHeight = new SimpleDoubleProperty(20);
+        final DoubleProperty knobRadius = new SimpleDoubleProperty(12);
         
         // Handle parameters
         final DoubleProperty handleSize = new SimpleDoubleProperty(40);
