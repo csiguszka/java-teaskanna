@@ -24,6 +24,9 @@ import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
@@ -31,23 +34,24 @@ public class MainApp extends Application {
     private double anchorY;
     private double anchorAngleX;
     private double anchorAngleY;
+    private VaseParameters currentParams;
 
     @Override
     public void start(Stage stage) {
         Group world = new Group();
         Group objectGroup = new Group();
 
-        VaseParameters params = new VaseParameters();
+        currentParams = new VaseParameters();
 
-        MeshView vase = createVaseMesh(params);
+        MeshView vase = createVaseMesh(currentParams);
         vase.setMaterial(new PhongMaterial(Color.rgb(210, 130, 80)));
         
-        MeshView handle = createHandleMesh(params);
+        MeshView handle = createHandleMesh(currentParams);
         handle.setMaterial(new PhongMaterial(Color.rgb(180, 100, 60)));
         Rotate handleRotation = new Rotate(-90, Rotate.Z_AXIS);
         handle.getTransforms().add(handleRotation);
 
-        MeshView lid = createLidMesh(params);
+        MeshView lid = createLidMesh(currentParams);
         lid.setMaterial(new PhongMaterial(Color.rgb(196, 116, 72)));
 
         objectGroup.getChildren().addAll(vase, handle, lid);
@@ -77,8 +81,9 @@ public class MainApp extends Application {
 
         StackPane subSceneHolder = new StackPane(subScene);
         BorderPane root = new BorderPane();
+        root.setTop(createMenuBar());
         root.setCenter(subSceneHolder);
-        root.setRight(createControlPanel(params, vase, handle, lid));
+        root.setRight(createControlPanel(currentParams, vase, handle, lid));
         root.setStyle("-fx-background-color: #1a1a22;");
         Scene scene = new Scene(root, 1000, 700, true);
         scene.setFill(Color.rgb(20, 20, 26));
@@ -92,6 +97,51 @@ public class MainApp extends Application {
 
         subScene.widthProperty().bind(subSceneHolder.widthProperty());
         subScene.heightProperty().bind(subSceneHolder.heightProperty());
+    }
+
+    private MenuBar createMenuBar() {
+        MenuBar menuBar = new MenuBar();
+        menuBar.setStyle("-fx-background-color: #2c2c36; -fx-border-color: #4a4a58; -fx-border-width: 0 0 1 0;");
+        
+        Menu fileMenu = new Menu("Fájl");
+        fileMenu.setStyle("-fx-text-fill: #f2f2f2;");
+        
+        MenuItem newItem = new MenuItem("Új");
+        newItem.setStyle("-fx-text-fill: #f2f2f2;");
+        newItem.setOnAction(e -> randomizeParameters());
+        
+        fileMenu.getItems().add(newItem);
+        menuBar.getMenus().add(fileMenu);
+        
+        return menuBar;
+    }
+    
+    private void randomizeParameters() {
+        VaseParameters params = getCurrentParameters();
+        
+        // Generate random values within the specified ranges
+        params.height.set(170 + Math.random() * 110); // 170-280
+        params.wallThickness.set(4 + Math.random() * 6); // 4-10
+        params.bellyAmount.set(6 + Math.random() * 40); // 6-46
+        params.neckTaper.set(Math.random() * 22); // 0-22
+        params.baseRadius.set(30 + Math.random() * 32); // 30-62
+        params.radialSegments.set(24 + (int)(Math.random() * 104)); // 24-128
+        
+        params.spoutLength.set(4 + Math.random() * 26); // 4-30
+        params.spoutWidth.set(15 + Math.random() * 105); // 15-120
+        params.spoutLift.set(-20 + Math.random() * 38); // -20-18
+        
+        params.lidHeight.set(20 + Math.random() * 36); // 20-56
+        params.knobHeight.set(8 + Math.random() * 34); // 8-42
+        params.knobRadius.set(10 + Math.random() * 10); // 10-20
+        
+        params.handleSize.set(20 + Math.random() * 60); // 20-80
+        params.handlePos.set(-20 + Math.random() * 150); // -20-130
+        params.handleThickness.set(4 + Math.random() * 12); // 4-16
+    }
+    
+    private VaseParameters getCurrentParameters() {
+        return currentParams;
     }
 
     private void setupMouseControls(SubScene scene, Rotate rotateX, Rotate rotateY) {
