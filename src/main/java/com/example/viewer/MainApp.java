@@ -1,6 +1,7 @@
 package com.example.viewer;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -46,6 +47,7 @@ public class MainApp extends Application {
     private MeshView handleMesh;
     private MeshView lidDomeMesh;
     private MeshView lidKnobMesh;
+    private boolean enforcingHandleConstraints;
 
     @Override
     public void start(Stage stage) {
@@ -53,6 +55,8 @@ public class MainApp extends Application {
         Group objectGroup = new Group();
 
         currentParams = new VaseParameters();
+        currentParams.ambientLightEnabled.addListener((obs, oldVal, newVal) -> updateLightsVisibility());
+        currentParams.pointLightEnabled.addListener((obs, oldVal, newVal) -> updateLightsVisibility());
 
         vaseMesh = createVaseMesh(currentParams);
         PhongMaterial vaseMaterial = new PhongMaterial(currentParams.bodyColor.get());
@@ -136,17 +140,19 @@ public class MainApp extends Application {
 
     private MenuBar createMenuBar() {
         MenuBar menuBar = new MenuBar();
-        menuBar.setStyle("-fx-background-color: #2c2c36; -fx-border-color: #4a4a58; -fx-border-width: 0 0 1 0; -fx-pref-height: 30;");
+        menuBar.setStyle("-fx-background-color: #1a1a22; -fx-border-color: #5e5e70; -fx-border-width: 0 0 1 0; -fx-pref-height: 30;");
         
         Menu fileMenu = new Menu("Fájl");
-        fileMenu.setStyle("-fx-text-fill: #ffffff; -fx-background-color: transparent;");
+        fileMenu.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
         
         MenuItem newItem = new MenuItem("Új");
-        newItem.setStyle("-fx-text-fill: #ffffff; -fx-background-color: transparent;");
+        newItem.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
         newItem.setOnAction(e -> randomizeParameters());
         
         fileMenu.getItems().add(newItem);
         menuBar.getMenus().add(fileMenu);
+        Platform.runLater(() -> menuBar.lookupAll(".label")
+                .forEach(node -> node.setStyle("-fx-text-fill: #f5f5ff;")));
         
         return menuBar;
     }
@@ -199,12 +205,14 @@ public class MainApp extends Application {
             0.2 + Math.random() * 0.3   // B: 0.2-0.5
         ));
         
-        // Randomize light states
-        params.ambientLightEnabled.set(Math.random() > 0.3); // 70% chance of being enabled
+        // Ambient light should always be enabled after "Új".
+        params.ambientLightEnabled.set(true);
         params.pointLightEnabled.set(Math.random() > 0.3);  // 70% chance of being enabled
+        enforceHandleInsideBounds(params);
         
         // Update mesh colors to reflect the new random colors
         updateMeshColorsAfterRandomization();
+        updateLightsVisibility();
     }
     
     private void updateMeshColorsAfterRandomization() {
@@ -336,11 +344,8 @@ public class MainApp extends Application {
         ColorPicker colorPicker = new ColorPicker(colorProperty.get());
         colorPicker.setStyle("-fx-background-color: #3c3c46; -fx-border-color: #5a5a68;");
         colorPicker.setPrefWidth(120);
-        
-        colorPicker.setOnAction(e -> {
-            colorProperty.set(colorPicker.getValue());
-            updateMeshColors(vase, spout, handle, lidDome, lidKnob, params);
-        });
+        colorPicker.valueProperty().bindBidirectional(colorProperty);
+        colorProperty.addListener((obs, oldVal, newVal) -> updateMeshColors(vase, spout, handle, lidDome, lidKnob, params));
         
         HBox hbox = new HBox(10, label, colorPicker);
         hbox.setStyle("-fx-alignment: center-left;");
@@ -376,6 +381,7 @@ public class MainApp extends Application {
         label.textProperty().bind(property.asString(labelText + ": %.1f"));
 
         property.addListener((obs, oldVal, newVal) -> {
+            enforceHandleInsideBounds(params);
             vase.setMesh(createVaseTriangleMesh(params));
             spout.setMesh(createSpoutTriangleMesh(params));
             handle.setMesh(createHandleTriangleMesh(params));
@@ -419,6 +425,50 @@ public class MainApp extends Application {
         }
     }
 
+    private void enforceHandleInsideBounds(VaseParameters params) {
+        if (enforcingHandleConstraints) {
+            return;
+        }
+        enforcingHandleConstraints = true;
+        try {
+            float totalHeight = (float) params.height.get();
+            float yStart = -totalHeight / 2f;
+            float yEnd = totalHeight / 2f;
+
+            float attachRadius = findMaxVaseRadius(params);
+            float maxHandleSize = Math.max(20f, totalHeight * 0.5f - 2f);
+            float constrainedSize = (float) Math.min(params.handleSize.get(), maxHandleSize);
+            if (Math.abs(params.handleSize.get() - constrainedSize) > 1e-6) {
+                params.handleSize.set(constrainedSize);
+            }
+
+            float handleSize = (float) params.handleSize.get();
+            float minPos = yStart + attachRadius + handleSize;
+            float maxPos = yEnd + attachRadius - handleSize;
+
+            if (minPos > maxPos) {
+                float mid = (minPos + maxPos) * 0.5f;
+                params.handlePos.set(mid);
+            } else {
+                double clampedPos = Math.max(minPos, Math.min(maxPos, params.handlePos.get()));
+                if (Math.abs(params.handlePos.get() - clampedPos) > 1e-6) {
+                    params.handlePos.set(clampedPos);
+                }
+            }
+        } finally {
+            enforcingHandleConstraints = false;
+        }
+    }
+
+    private float findMaxVaseRadius(VaseParameters params) {
+        float maxRadius = 0f;
+        for (int i = 0; i <= 120; i++) {
+            float t = (float) i / 120f;
+            maxRadius = Math.max(maxRadius, vaseProfileRadius(t, params));
+        }
+        return maxRadius;
+    }
+
     private VBox createSliderControl(
             String labelText,
             IntegerProperty property,
@@ -442,6 +492,7 @@ public class MainApp extends Application {
         label.textProperty().bind(property.asString(labelText + ": %d"));
 
         property.addListener((obs, oldVal, newVal) -> {
+            enforceHandleInsideBounds(params);
             vase.setMesh(createVaseTriangleMesh(params));
             spout.setMesh(createSpoutTriangleMesh(params));
             handle.setMesh(createHandleTriangleMesh(params));
@@ -574,24 +625,11 @@ public class MainApp extends Application {
             mesh.getFaces().addAll(ob1, 0, ib0, 0, ib1, 0);
         }
 
-        // Felso zaro perem (teljesen lezarjuk a tetejet)
+        // Felso perem: hagyjuk nyitva a szajat, hogy bele lehessen latni.
         int outerTop = verticalSegments * ringSize;
         int innerTop = innerOffset + verticalSegments * ringSize;
-        
-        // Add top center point for complete closure
-        float topY = yValues[verticalSegments];
-        float topRadius = baseOuterRadius[verticalSegments];
-        int topCenterIndex = mesh.getPoints().size() / 3;
-        mesh.getPoints().addAll(0f, topY, 0f);
-        
-        // Create triangles from outer ring to center point
-        for (int ri = 0; ri < radialSegments; ri++) {
-            int ot0 = outerTop + ri;
-            int ot1 = outerTop + ri + 1;
-            mesh.getFaces().addAll(ot0, 0, ot1, 0, topCenterIndex, 0);
-        }
-        
-        // Also create rim thickness closure (optional, for better appearance)
+
+        // Peremvastagsag (kulso-belso gyuru kozti osszekotes)
         for (int ri = 0; ri < radialSegments; ri++) {
             int ot0 = outerTop + ri;
             int ot1 = outerTop + ri + 1;
