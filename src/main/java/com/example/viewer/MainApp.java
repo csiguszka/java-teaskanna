@@ -420,9 +420,8 @@ public class MainApp extends Application {
                 float thicknessX = handleThickness * 0.5f * (float) Math.cos(thicknessAngle);
                 float thicknessZ = handleThickness * 0.5f * (float) Math.sin(thicknessAngle);
                 
-                // Only add thickness on the outside of the arc
-                if (thicknessX < 0) thicknessX = 0;
-                
+                // Keep cross-section thickness centered on the arc centerline.
+                // This avoids asymmetric vertical/radial offsets after the handle's Z rotation.
                 float x = arcX + thicknessX;
                 float y = arcY;
                 float z = arcZ + thicknessZ;
