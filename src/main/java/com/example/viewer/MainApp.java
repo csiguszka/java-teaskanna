@@ -123,6 +123,13 @@ public class MainApp extends Application {
         panel.getChildren().add(createSliderControl("Nyakszukules", params.neckTaper, 0, 22, vase, handle, params));
         panel.getChildren().add(createSliderControl("Also sugar", params.baseRadius, 30, 62, vase, handle, params));
         panel.getChildren().add(createSliderControl("Felbontas", params.radialSegments, 24, 128, vase, handle, params));
+
+        Label spoutTitle = new Label("Kionto parameterek");
+        spoutTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
+        panel.getChildren().add(spoutTitle);
+        panel.getChildren().add(createSliderControl("Kionto hossza", params.spoutLength, 0, 30, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Kionto szelesseg", params.spoutWidth, 20, 120, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Ajak emeles", params.spoutLift, -20, 18, vase, handle, params));
         
         Label handleTitle = new Label("Fogo parameterek");
         handleTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
@@ -214,21 +221,14 @@ public class MainApp extends Application {
         float wallThickness = (float) params.wallThickness.get();
         float yStart = -totalHeight / 2f;
 
-        float[] outerRadius = new float[verticalSegments + 1];
-        float[] innerRadius = new float[verticalSegments + 1];
+        float[] baseOuterRadius = new float[verticalSegments + 1];
         float[] yValues = new float[verticalSegments + 1];
 
         for (int i = 0; i <= verticalSegments; i++) {
             float t = (float) i / verticalSegments;
             yValues[i] = yStart + t * totalHeight;
 
-            // Sima, kifelé domborodó váza profil (forgástest), paraméterezve
-            float r = (float) params.baseRadius.get()
-                    + (float) params.bellyAmount.get() * (float) Math.sin(Math.PI * t)
-                    + 9f * (float) Math.sin(2.3 * Math.PI * t + 0.4)
-                    - (float) params.neckTaper.get() * (float) Math.pow(t, 1.4);
-            outerRadius[i] = r;
-            innerRadius[i] = Math.max(10f, r - wallThickness);
+            baseOuterRadius[i] = vaseProfileRadius(t, params);
         }
 
         TriangleMesh mesh = new TriangleMesh();
@@ -238,13 +238,17 @@ public class MainApp extends Application {
 
         // Kulso fal pontok
         for (int yi = 0; yi <= verticalSegments; yi++) {
+            float t = (float) yi / verticalSegments;
             float y = yValues[yi];
-            float radius = outerRadius[yi];
+            float baseRadius = baseOuterRadius[yi];
             for (int ri = 0; ri <= radialSegments; ri++) {
                 double angle = 2.0 * Math.PI * ri / radialSegments;
+                float spoutWeight = computeSpoutWeight(t, angle, params);
+                float radius = baseRadius + (float) params.spoutLength.get() * spoutWeight;
+                float liftedY = y + (float) params.spoutLift.get() * spoutWeight;
                 float x = (float) (radius * Math.cos(angle));
                 float z = (float) (radius * Math.sin(angle));
-                mesh.getPoints().addAll(x, y, z);
+                mesh.getPoints().addAll(x, liftedY, z);
             }
         }
 
@@ -252,13 +256,18 @@ public class MainApp extends Application {
 
         // Belso fal pontok (kulon gyuru, ugyanazzal a mintavetelezessel)
         for (int yi = 0; yi <= verticalSegments; yi++) {
+            float t = (float) yi / verticalSegments;
             float y = yValues[yi];
-            float radius = innerRadius[yi];
+            float baseRadius = baseOuterRadius[yi];
             for (int ri = 0; ri <= radialSegments; ri++) {
                 double angle = 2.0 * Math.PI * ri / radialSegments;
+                float spoutWeight = computeSpoutWeight(t, angle, params);
+                float outerWithSpout = baseRadius + (float) params.spoutLength.get() * spoutWeight;
+                float radius = Math.max(10f, outerWithSpout - wallThickness);
+                float liftedY = y + (float) params.spoutLift.get() * spoutWeight * 0.65f;
                 float x = (float) (radius * Math.cos(angle));
                 float z = (float) (radius * Math.sin(angle));
-                mesh.getPoints().addAll(x, y, z);
+                mesh.getPoints().addAll(x, liftedY, z);
             }
         }
 
@@ -323,6 +332,28 @@ public class MainApp extends Application {
         return mesh;
     }
 
+    private float vaseProfileRadius(float t, VaseParameters params) {
+        return (float) params.baseRadius.get()
+                + (float) params.bellyAmount.get() * (float) Math.sin(Math.PI * t)
+                + 9f * (float) Math.sin(2.3 * Math.PI * t + 0.4)
+                - (float) params.neckTaper.get() * (float) Math.pow(t, 1.4);
+    }
+
+    private float computeSpoutWeight(float t, double angle, VaseParameters params) {
+        float topMask = smoothStep(0.68f, 1.0f, t);
+        float widthRad = (float) Math.toRadians(params.spoutWidth.get() * 0.5);
+        widthRad = Math.max(0.12f, widthRad);
+        float centeredAngle = (float) Math.atan2(Math.sin(angle), Math.cos(angle));
+        float angularMask = (float) Math.exp(-Math.pow(centeredAngle / widthRad, 2.0));
+        return topMask * angularMask;
+    }
+
+    private float smoothStep(float edge0, float edge1, float x) {
+        float t = (x - edge0) / (edge1 - edge0);
+        t = Math.max(0f, Math.min(1f, t));
+        return t * t * (3f - 2f * t);
+    }
+
     private TriangleMesh createHandleTriangleMesh(VaseParameters params) {
         int segments = 32;
         int thicknessSegments = 8;
@@ -346,9 +377,7 @@ public class MainApp extends Application {
         for (int i = 0; i <= 100; i++) {
             float t = (float) i / 100;
             float y = yStart + t * totalHeight;
-            float radius = baseRadius + bellyAmount * (float) Math.sin(Math.PI * t) 
-                          + 9f * (float) Math.sin(2.3 * Math.PI * t + 0.4)
-                          - neckTaper * (float) Math.pow(t, 1.4);
+            float radius = vaseProfileRadius(t, params);
             
             if (radius > maxRadius) {
                 maxRadius = radius;
@@ -374,15 +403,8 @@ public class MainApp extends Application {
         t0 = Math.max(0f, Math.min(1f, t0));
         t1 = Math.max(0f, Math.min(1f, t1));
 
-        float r0 = baseRadius
-                + bellyAmount * (float) Math.sin(Math.PI * t0)
-                + 9f * (float) Math.sin(2.3 * Math.PI * t0 + 0.4)
-                - neckTaper * (float) Math.pow(t0, 1.4);
-
-        float r1 = baseRadius
-                + bellyAmount * (float) Math.sin(Math.PI * t1)
-                + 9f * (float) Math.sin(2.3 * Math.PI * t1 + 0.4)
-                - neckTaper * (float) Math.pow(t1, 1.4);
+        float r0 = vaseProfileRadius(t0, params);
+        float r1 = vaseProfileRadius(t1, params);
 
         // Both arc endpoints (angle=0 and angle=pi) share the same local arcY term at the moment.
         // If the vase radius differs at the two endpoint heights, only one side will match.
@@ -454,6 +476,10 @@ public class MainApp extends Application {
         final DoubleProperty neckTaper = new SimpleDoubleProperty(4);
         final DoubleProperty baseRadius = new SimpleDoubleProperty(38);
         final IntegerProperty radialSegments = new SimpleIntegerProperty(72);
+
+        final DoubleProperty spoutLength = new SimpleDoubleProperty(12);
+        final DoubleProperty spoutWidth = new SimpleDoubleProperty(70);
+        final DoubleProperty spoutLift = new SimpleDoubleProperty(7);
         
         // Handle parameters
         final DoubleProperty handleSize = new SimpleDoubleProperty(40);
