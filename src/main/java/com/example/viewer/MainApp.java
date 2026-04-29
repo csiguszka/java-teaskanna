@@ -41,7 +41,13 @@ public class MainApp extends Application {
 
         MeshView vase = createVaseMesh(params);
         vase.setMaterial(new PhongMaterial(Color.rgb(210, 130, 80)));
-        objectGroup.getChildren().add(vase);
+        
+        MeshView handle = createHandleMesh(params);
+        handle.setMaterial(new PhongMaterial(Color.rgb(180, 100, 60)));
+        Rotate handleRotation = new Rotate(-90, Rotate.Z_AXIS);
+        handle.getTransforms().add(handleRotation);
+
+        objectGroup.getChildren().addAll(vase, handle);
         world.getChildren().add(objectGroup);
 
         var ambientLight = new javafx.scene.AmbientLight(Color.color(0.35, 0.35, 0.35));
@@ -69,7 +75,7 @@ public class MainApp extends Application {
         StackPane subSceneHolder = new StackPane(subScene);
         BorderPane root = new BorderPane();
         root.setCenter(subSceneHolder);
-        root.setRight(createControlPanel(params, vase));
+        root.setRight(createControlPanel(params, vase, handle));
         root.setStyle("-fx-background-color: #1a1a22;");
         Scene scene = new Scene(root, 1000, 700, true);
         scene.setFill(Color.rgb(20, 20, 26));
@@ -99,7 +105,7 @@ public class MainApp extends Application {
         });
     }
 
-    private ScrollPane createControlPanel(VaseParameters params, MeshView vase) {
+    private ScrollPane createControlPanel(VaseParameters params, MeshView vase, MeshView handle) {
         VBox panel = new VBox(10);
         panel.setPadding(new Insets(14));
         panel.setPrefWidth(300);
@@ -111,12 +117,20 @@ public class MainApp extends Application {
         title.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold;");
 
         panel.getChildren().add(title);
-        panel.getChildren().add(createSliderControl("Magassag", params.height, 170, 360, vase, params));
-        panel.getChildren().add(createSliderControl("Falvastagsag", params.wallThickness, 4, 28, vase, params));
-        panel.getChildren().add(createSliderControl("Hasasodas", params.bellyAmount, 6, 46, vase, params));
-        panel.getChildren().add(createSliderControl("Nyakszukules", params.neckTaper, 0, 22, vase, params));
-        panel.getChildren().add(createSliderControl("Also sugar", params.baseRadius, 18, 62, vase, params));
-        panel.getChildren().add(createSliderControl("Felbontas", params.radialSegments, 24, 128, vase, params));
+        panel.getChildren().add(createSliderControl("Magassag", params.height, 170, 280, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Falvastagsag", params.wallThickness, 4, 28, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Hasasodas", params.bellyAmount, 6, 46, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Nyakszukules", params.neckTaper, 0, 22, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Also sugar", params.baseRadius, 30, 62, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Felbontas", params.radialSegments, 24, 128, vase, handle, params));
+        
+        Label handleTitle = new Label("Fogo parameterek");
+        handleTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
+        panel.getChildren().add(handleTitle);
+        panel.getChildren().add(createSliderControl("Fogo meret", params.handleSize, 20, 80, vase, handle, params));
+        panel.getChildren().add(createSliderControl("Fogo vastagsag", params.handleThickness, 4, 16, vase, handle, params));
+        
+        panel.getChildren().add(createSliderControl("Fogo pozicio", params.handlePos, -20, 130, vase, handle, params));
 
         ScrollPane scrollPane = new ScrollPane(panel);
         scrollPane.setFitToWidth(true);
@@ -135,6 +149,7 @@ public class MainApp extends Application {
             double min,
             double max,
             MeshView vase,
+            MeshView handle,
             VaseParameters params
     ) {
         Slider slider = new Slider(min, max, property.get());
@@ -145,7 +160,10 @@ public class MainApp extends Application {
         label.setStyle("-fx-text-fill: #e7e7e7;");
         label.textProperty().bind(property.asString(labelText + ": %.1f"));
 
-        property.addListener((obs, oldVal, newVal) -> vase.setMesh(createVaseTriangleMesh(params)));
+        property.addListener((obs, oldVal, newVal) -> {
+            vase.setMesh(createVaseTriangleMesh(params));
+            handle.setMesh(createHandleTriangleMesh(params));
+        });
 
         return new VBox(4, label, slider);
     }
@@ -156,6 +174,7 @@ public class MainApp extends Application {
             int min,
             int max,
             MeshView vase,
+            MeshView handle,
             VaseParameters params
     ) {
         Slider slider = new Slider(min, max, property.get());
@@ -168,13 +187,22 @@ public class MainApp extends Application {
         label.setStyle("-fx-text-fill: #e7e7e7;");
         label.textProperty().bind(property.asString(labelText + ": %d"));
 
-        property.addListener((obs, oldVal, newVal) -> vase.setMesh(createVaseTriangleMesh(params)));
+        property.addListener((obs, oldVal, newVal) -> {
+            vase.setMesh(createVaseTriangleMesh(params));
+            handle.setMesh(createHandleTriangleMesh(params));
+        });
 
         return new VBox(4, label, slider);
     }
 
     private MeshView createVaseMesh(VaseParameters params) {
         MeshView meshView = new MeshView(createVaseTriangleMesh(params));
+        meshView.setCullFace(CullFace.NONE);
+        return meshView;
+    }
+
+    private MeshView createHandleMesh(VaseParameters params) {
+        MeshView meshView = new MeshView(createHandleTriangleMesh(params));
         meshView.setCullFace(CullFace.NONE);
         return meshView;
     }
@@ -295,6 +323,77 @@ public class MainApp extends Application {
         return mesh;
     }
 
+    private TriangleMesh createHandleTriangleMesh(VaseParameters params) {
+        int segments = 32;
+        int thicknessSegments = 8;
+        
+        float handleSize = (float) params.handleSize.get();
+        float handleThickness = (float) params.handleThickness.get();
+        float pos = (float) params.handlePos.get();
+        float totalHeight = (float) params.height.get();
+        float baseRadius = (float) params.baseRadius.get();
+        float bellyAmount = (float) params.bellyAmount.get();
+        float neckTaper = (float) params.neckTaper.get();
+        
+        // Use middle height for attachment point
+        float attachY = -totalHeight / 2f + 0.5f * totalHeight;
+        float t = 0.5f; // Always attach at middle height
+        
+        // Calculate vase radius at middle height for base X position
+        float vaseRadius = baseRadius + bellyAmount * (float) Math.sin(Math.PI * t) 
+                          + 9f * (float) Math.sin(2.3 * Math.PI * t + 0.4)
+                          - neckTaper * (float) Math.pow(t, 1.4f);
+        
+        TriangleMesh mesh = new TriangleMesh();
+        mesh.getTexCoords().addAll(0f, 0f);
+        
+        // Create simple arc handle points
+        for (int i = 0; i <= segments; i++) {
+            float arcT = (float) i / segments;
+            float angle = (float) Math.PI * arcT; // Half circle arc
+            
+            // Arc path: vertical handle that attaches to vase surface
+            // Handle position controlled by X parameter only
+            float arcX = vaseRadius + handleSize * (float) Math.cos(angle) - pos; // Arc extends outward from vase + X offset
+            float arcY = attachY + handleSize * (float) Math.sin(angle); // Arc moves vertically on Y axis (fixed)
+            float arcZ = 0; // Z position fixed at 0
+            
+            // Create circular cross-section at each arc point
+            for (int j = 0; j <= thicknessSegments; j++) {
+                float thicknessAngle = 2.0f * (float) Math.PI * j / thicknessSegments;
+                
+                // Thickness in X-Z plane (perpendicular to arc direction)
+                float thicknessX = handleThickness * 0.5f * (float) Math.cos(thicknessAngle);
+                float thicknessZ = handleThickness * 0.5f * (float) Math.sin(thicknessAngle);
+                
+                // Only add thickness on the outside of the arc
+                if (thicknessX < 0) thicknessX = 0;
+                
+                float x = arcX + thicknessX;
+                float y = arcY;
+                float z = arcZ + thicknessZ;
+                
+                mesh.getPoints().addAll(x, y, z);
+            }
+        }
+        
+        // Create faces for the handle
+        int ringSize = thicknessSegments + 1;
+        for (int i = 0; i < segments; i++) {
+            for (int j = 0; j < thicknessSegments; j++) {
+                int p0 = i * ringSize + j;
+                int p1 = p0 + 1;
+                int p2 = p0 + ringSize;
+                int p3 = p2 + 1;
+                
+                mesh.getFaces().addAll(p0, 0, p2, 0, p1, 0);
+                mesh.getFaces().addAll(p1, 0, p2, 0, p3, 0);
+            }
+        }
+        
+        return mesh;
+    }
+
     private static class VaseParameters {
         final DoubleProperty height = new SimpleDoubleProperty(260);
         final DoubleProperty wallThickness = new SimpleDoubleProperty(10);
@@ -302,6 +401,13 @@ public class MainApp extends Application {
         final DoubleProperty neckTaper = new SimpleDoubleProperty(4);
         final DoubleProperty baseRadius = new SimpleDoubleProperty(38);
         final IntegerProperty radialSegments = new SimpleIntegerProperty(72);
+        
+        // Handle parameters
+        final DoubleProperty handleSize = new SimpleDoubleProperty(40);
+        final DoubleProperty handleThickness = new SimpleDoubleProperty(8);
+        
+        // Handle position parameter (X only)
+        final DoubleProperty handlePos = new SimpleDoubleProperty(0);
     }
 
     public static void main(String[] args) {
