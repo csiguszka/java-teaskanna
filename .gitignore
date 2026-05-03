@@ -5,6 +5,7 @@ target/
 .idea/
 .vscode/
 *.iml
+.vs/
 
 # OS files
 .DS_Store
