@@ -2,6 +2,7 @@ package com.example.viewer.controller;
 
 import com.example.viewer.model.VaseParameters;
 import com.example.viewer.geometry.*;
+import com.example.viewer.utils.SceneExporter;
 import com.example.viewer.view.ControlPanel;
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -134,8 +135,16 @@ public class MainController {
         MenuItem newItem = new MenuItem("Új");
         newItem.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
         newItem.setOnAction(e -> randomizeParameters());
-        
-        fileMenu.getItems().add(newItem);
+
+        MenuItem exportItem = new MenuItem("Exportálás...");
+        exportItem.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
+        exportItem.setOnAction(e -> SceneExporter.exportToFile(currentParams, menuBar.getScene().getWindow()));
+
+        MenuItem importItem = new MenuItem("Importálás...");
+        importItem.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
+        importItem.setOnAction(e -> SceneExporter.importFromFile(currentParams, menuBar.getScene().getWindow()));
+
+        fileMenu.getItems().addAll(newItem, new javafx.scene.control.SeparatorMenuItem(), exportItem, importItem);
         menuBar.getMenus().add(fileMenu);
         Platform.runLater(() -> menuBar.lookupAll(".label")
                 .forEach(node -> node.setStyle("-fx-text-fill: #f5f5ff;")));
