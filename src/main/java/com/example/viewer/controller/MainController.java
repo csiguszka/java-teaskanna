@@ -4,6 +4,7 @@ import com.example.viewer.model.VaseParameters;
 import com.example.viewer.geometry.*;
 import com.example.viewer.utils.SceneExporter;
 import com.example.viewer.view.ControlPanel;
+import com.example.viewer.view.HelpDialog;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
@@ -146,6 +147,17 @@ public class MainController {
 
         fileMenu.getItems().addAll(newItem, new javafx.scene.control.SeparatorMenuItem(), exportItem, importItem);
         menuBar.getMenus().add(fileMenu);
+
+        Menu helpMenu = new Menu("Súgó");
+        helpMenu.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
+
+        MenuItem helpItem = new MenuItem("Súgó megjelenítése");
+        helpItem.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
+        helpItem.setOnAction(e -> HelpDialog.show(menuBar.getScene().getWindow()));
+
+        helpMenu.getItems().add(helpItem);
+        menuBar.getMenus().add(helpMenu);
+
         Platform.runLater(() -> menuBar.lookupAll(".label")
                 .forEach(node -> node.setStyle("-fx-text-fill: #f5f5ff;")));
         
