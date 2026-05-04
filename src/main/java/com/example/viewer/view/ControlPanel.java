@@ -16,8 +16,7 @@ public class ControlPanel {
         VBox panel = new VBox(10);
         panel.setPadding(new Insets(14, 14, 40, 14));
         panel.setPrefWidth(300);
-        panel.setMinWidth(250);
-        panel.setMaxWidth(350);
+        panel.setMinWidth(0);
         panel.setStyle("-fx-background-color: #2c2c36; -fx-border-color: #4a4a58; -fx-border-width: 0 0 0 1;");
 
         Label title = new Label("Vaza parameterek");
@@ -71,13 +70,12 @@ public class ControlPanel {
         
         ScrollPane scrollPane = new ScrollPane(panel);
         scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(false);
         scrollPane.setPrefWidth(300);
-        scrollPane.setMinWidth(250);
-        scrollPane.setMaxWidth(350);
+        scrollPane.setMinWidth(220);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setPannable(true);
-        scrollPane.setFitToHeight(true);
         scrollPane.setStyle("-fx-background: #2c2c36; -fx-background-color: #2c2c36; -fx-padding: 0;");
         return scrollPane;
     }

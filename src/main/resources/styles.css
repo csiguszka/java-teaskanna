@@ -1,0 +1,82 @@
+/* ── Menu bar ─────────────────────────────────────────── */
+.menu-bar {
+    -fx-background-color: #1a1a22;
+    -fx-border-color: #5e5e70;
+    -fx-border-width: 0 0 1 0;
+    -fx-pref-height: 30;
+}
+
+/* Top-level menu button labels ("Fájl", "Súgó") */
+.menu-bar .menu-button > .label,
+.menu-bar .menu > .label {
+    -fx-text-fill: #f5f5ff;
+}
+
+.menu-bar .menu-button:hover,
+.menu-bar .menu-button:showing {
+    -fx-background-color: #2c2c40;
+}
+
+/* ── Dropdown context menu ───────────────────────────── */
+.context-menu {
+    -fx-background-color: #2c2c36;
+    -fx-border-color: #5a5a68;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 10, 0, 0, 4);
+}
+
+.menu-item {
+    -fx-background-color: transparent;
+}
+
+.menu-item .label {
+    -fx-text-fill: #f5f5ff;
+    -fx-font-size: 13px;
+}
+
+.menu-item:focused,
+.menu-item:hover {
+    -fx-background-color: #3c3c50;
+}
+
+.menu-item:focused > .label,
+.menu-item:hover > .label {
+    -fx-text-fill: #ffffff;
+}
+
+.separator .line {
+    -fx-border-color: #5a5a68;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* ── ScrollPane ──────────────────────────────────────── */
+.scroll-pane > .viewport {
+    -fx-background-color: #2c2c36;
+}
+
+.scroll-bar:vertical .track,
+.scroll-bar:horizontal .track {
+    -fx-background-color: #1a1a22;
+}
+
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #5a5a70;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar:vertical .thumb:hover,
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #7a7a90;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: #2c2c36;
+    -fx-padding: 2;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: #9090a8;
+}

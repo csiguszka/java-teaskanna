@@ -5,7 +5,6 @@ import com.example.viewer.geometry.*;
 import com.example.viewer.utils.SceneExporter;
 import com.example.viewer.view.ControlPanel;
 import com.example.viewer.view.HelpDialog;
-import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
@@ -82,7 +81,7 @@ public class MainController {
         pointLight.setTranslateZ(-400);
         worldGroup.getChildren().addAll(ambientLight, pointLight);
 
-        Rotate rotateX = new Rotate(-20, Rotate.X_AXIS);
+        Rotate rotateX = new Rotate(160, Rotate.X_AXIS);
         Rotate rotateY = new Rotate(-20, Rotate.Y_AXIS);
         objectGroup.getTransforms().addAll(rotateX, rotateY);
 
@@ -108,6 +107,7 @@ public class MainController {
         
         Scene scene = new Scene(root, 1000, 700, true);
         scene.setFill(Color.rgb(20, 20, 26));
+        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
         stage.setTitle("3D Objektum Nezegeto");
         stage.setScene(scene);
@@ -117,7 +117,7 @@ public class MainController {
         
         controlPanel.prefWidthProperty().bind(scene.widthProperty().multiply(0.3));
         controlPanel.maxWidthProperty().bind(scene.widthProperty().multiply(0.4));
-        controlPanel.minWidthProperty().bind(scene.widthProperty().multiply(0.2));
+        controlPanel.setMinWidth(220);
         stage.show();
 
         subScene.widthProperty().bind(subSceneHolder.widthProperty());
@@ -161,9 +161,6 @@ public class MainController {
 
         helpMenu.getItems().add(helpItem);
         menuBar.getMenus().add(helpMenu);
-
-        Platform.runLater(() -> menuBar.lookupAll(".label")
-                .forEach(node -> node.setStyle("-fx-text-fill: #f5f5ff;")));
         
         return menuBar;
     }
