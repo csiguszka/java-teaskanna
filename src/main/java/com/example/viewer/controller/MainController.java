@@ -13,6 +13,7 @@ import javafx.scene.SubScene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -97,12 +98,15 @@ public class MainController {
         setupMouseControls(subScene, rotateX, rotateY, camera);
 
         StackPane subSceneHolder = new StackPane(subScene);
+        ScrollPane controlPanel = ControlPanel.createControlPanel(currentParams, vaseMesh, spoutMesh, handleMesh, lidDomeMesh, lidKnobMesh);
+
+        SplitPane splitPane = new SplitPane(subSceneHolder, controlPanel);
+        splitPane.setDividerPositions(0.70);
+        SplitPane.setResizableWithParent(controlPanel, false);
+
         BorderPane root = new BorderPane();
         root.setTop(createMenuBar());
-        root.setCenter(subSceneHolder);
-        
-        ScrollPane controlPanel = ControlPanel.createControlPanel(currentParams, vaseMesh, spoutMesh, handleMesh, lidDomeMesh, lidKnobMesh);
-        root.setRight(controlPanel);
+        root.setCenter(splitPane);
         root.setStyle("-fx-background-color: #1a1a22;");
         
         Scene scene = new Scene(root, 1000, 700, true);
@@ -111,13 +115,9 @@ public class MainController {
 
         stage.setTitle("3D Objektum Nezegeto");
         stage.setScene(scene);
-        stage.setMinWidth(700);
-        stage.setMinHeight(500);
+        stage.setMinWidth(600);
+        stage.setMinHeight(400);
         stage.setMaximized(true);
-        
-        controlPanel.prefWidthProperty().bind(scene.widthProperty().multiply(0.3));
-        controlPanel.maxWidthProperty().bind(scene.widthProperty().multiply(0.4));
-        controlPanel.setMinWidth(220);
         stage.show();
 
         subScene.widthProperty().bind(subSceneHolder.widthProperty());
@@ -212,7 +212,7 @@ public class MainController {
         ));
         
         params.ambientLightEnabled.set(true);
-        params.pointLightEnabled.set(Math.random() > 0.3);
+        params.pointLightEnabled.set(true);
         
         updateMeshColorsAfterRandomization();
         updateLightsVisibility();

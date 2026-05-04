@@ -1,3 +1,18 @@
+/* ── SplitPane ────────────────────────────────────────── */
+.split-pane {
+    -fx-background-color: #1a1a22;
+    -fx-padding: 0;
+}
+
+.split-pane-divider {
+    -fx-background-color: #4a4a58;
+    -fx-padding: 0 2 0 2;
+}
+
+.split-pane-divider:hover {
+    -fx-background-color: #7a7a90;
+}
+
 /* ── Menu bar ─────────────────────────────────────────── */
 .menu-bar {
     -fx-background-color: #1a1a22;

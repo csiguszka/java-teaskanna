@@ -68,6 +68,11 @@ public class ControlPanel {
         panel.getChildren().add(createSliderControl("Fogo pozicio", params.handlePos, -140, 140, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Fogo vastagsag", params.handleThickness, 4, 16, vase, spout, handle, lidDome, lidKnob, params));
         
+        // Spacer at bottom so the last item is fully scrollable into view
+        javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+        spacer.setMinHeight(30);
+        panel.getChildren().add(spacer);
+        
         ScrollPane scrollPane = new ScrollPane(panel);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(false);
