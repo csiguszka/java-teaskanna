@@ -13,9 +13,10 @@ import javafx.scene.SubScene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -91,38 +92,42 @@ public class MainController {
         camera.setNearClip(0.1);
         camera.setFarClip(5000);
 
-        SubScene subScene = new SubScene(worldGroup, 1000, 700, true, SceneAntialiasing.BALANCED);
+        SubScene subScene = new SubScene(worldGroup, 800, 600, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.rgb(20, 20, 26));
         subScene.setCamera(camera);
 
         setupMouseControls(subScene, rotateX, rotateY, camera);
 
         StackPane subSceneHolder = new StackPane(subScene);
-        ScrollPane controlPanel = ControlPanel.createControlPanel(currentParams, vaseMesh, spoutMesh, handleMesh, lidDomeMesh, lidKnobMesh);
+        HBox.setHgrow(subSceneHolder, Priority.ALWAYS);
 
-        SplitPane splitPane = new SplitPane(subSceneHolder, controlPanel);
-        splitPane.setDividerPositions(0.70);
-        SplitPane.setResizableWithParent(controlPanel, false);
+        ScrollPane controlPanel = ControlPanel.createControlPanel(currentParams, vaseMesh, spoutMesh, handleMesh, lidDomeMesh, lidKnobMesh);
+        controlPanel.setPrefWidth(280);
+        controlPanel.setMinWidth(280);
+        controlPanel.setMaxWidth(280);
+
+        HBox mainContent = new HBox(controlPanel, subSceneHolder);
 
         BorderPane root = new BorderPane();
         root.setTop(createMenuBar());
-        root.setCenter(splitPane);
+        root.setCenter(mainContent);
         root.setStyle("-fx-background-color: #1a1a22;");
-        
-        Scene scene = new Scene(root, 1000, 700, true);
+
+        Scene scene = new Scene(root, 1100, 700, true);
         scene.setFill(Color.rgb(20, 20, 26));
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
         stage.setTitle("3D Objektum Nezegeto");
         stage.setScene(scene);
-        stage.setMinWidth(600);
-        stage.setMinHeight(400);
+        stage.setResizable(true);
+        stage.setMinWidth(1280);
+        stage.setMinHeight(720);
         stage.setMaximized(true);
         stage.show();
 
         subScene.widthProperty().bind(subSceneHolder.widthProperty());
         subScene.heightProperty().bind(subSceneHolder.heightProperty());
-        
+
         randomizeParameters();
     }
 

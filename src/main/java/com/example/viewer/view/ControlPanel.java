@@ -14,10 +14,8 @@ public class ControlPanel {
     
     public static ScrollPane createControlPanel(VaseParameters params, MeshView vase, MeshView spout, MeshView handle, MeshView lidDome, MeshView lidKnob) {
         VBox panel = new VBox(10);
-        panel.setPadding(new Insets(14, 14, 40, 14));
-        panel.setPrefWidth(300);
-        panel.setMinWidth(0);
-        panel.setStyle("-fx-background-color: #2c2c36; -fx-border-color: #4a4a58; -fx-border-width: 0 0 0 1;");
+        panel.setPadding(new Insets(14, 14, 14, 14));
+        panel.setStyle("-fx-background-color: #2c2c36; -fx-border-color: #4a4a58; -fx-border-width: 0 1 0 0;");
 
         Label title = new Label("Vaza parameterek");
         title.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold;");
@@ -76,8 +74,6 @@ public class ControlPanel {
         ScrollPane scrollPane = new ScrollPane(panel);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(false);
-        scrollPane.setPrefWidth(300);
-        scrollPane.setMinWidth(220);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setPannable(true);
