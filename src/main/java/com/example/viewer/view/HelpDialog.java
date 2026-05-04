@@ -35,6 +35,7 @@ public class HelpDialog {
 
             sectionTitle("📂  Fájl menü"),
             item("Új",             "Véletlenszerű paraméterek generálása"),
+            item("Törlés",         "Paraméterek visszaállítása alapértékekre"),
             item("Exportálás…",    "Jelenlegi paraméterek mentése JSON fájlba"),
             item("Importálás…",    "Korábban elmentett JSON fájl betöltése"),
 

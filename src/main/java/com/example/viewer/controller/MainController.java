@@ -137,6 +137,10 @@ public class MainController {
         newItem.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
         newItem.setOnAction(e -> randomizeParameters());
 
+        MenuItem deleteItem = new MenuItem("Törlés");
+        deleteItem.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
+        deleteItem.setOnAction(e -> resetToDefaults());
+
         MenuItem exportItem = new MenuItem("Exportálás...");
         exportItem.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
         exportItem.setOnAction(e -> SceneExporter.exportToFile(currentParams, menuBar.getScene().getWindow()));
@@ -145,7 +149,7 @@ public class MainController {
         importItem.setStyle("-fx-text-fill: #f5f5ff; -fx-background-color: transparent;");
         importItem.setOnAction(e -> SceneExporter.importFromFile(currentParams, menuBar.getScene().getWindow()));
 
-        fileMenu.getItems().addAll(newItem, new javafx.scene.control.SeparatorMenuItem(), exportItem, importItem);
+        fileMenu.getItems().addAll(newItem, deleteItem, new javafx.scene.control.SeparatorMenuItem(), exportItem, importItem);
         menuBar.getMenus().add(fileMenu);
 
         Menu helpMenu = new Menu("Súgó");
@@ -217,6 +221,40 @@ public class MainController {
         updateLightsVisibility();
     }
     
+    private void resetToDefaults() {
+        VaseParameters params = currentParams;
+
+        params.height.set(260);
+        params.wallThickness.set(10);
+        params.bellyAmount.set(22);
+        params.neckTaper.set(4);
+        params.baseRadius.set(38);
+        params.radialSegments.set(72);
+
+        params.spoutLength.set(12);
+        params.spoutWidth.set(70);
+        params.spoutLift.set(7);
+
+        params.lidHeight.set(30);
+        params.knobHeight.set(20);
+        params.knobRadius.set(12);
+
+        params.handleSize.set(40);
+        params.handleThickness.set(8);
+        params.handlePos.set(0);
+
+        params.bodyColor.set(Color.rgb(210, 130, 80));
+        params.handleColor.set(Color.rgb(180, 100, 60));
+        params.lidDomeColor.set(Color.rgb(196, 116, 72));
+        params.lidKnobColor.set(Color.rgb(220, 140, 80));
+
+        params.ambientLightEnabled.set(true);
+        params.pointLightEnabled.set(true);
+
+        updateMeshColorsAfterRandomization();
+        updateLightsVisibility();
+    }
+
     private void updateMeshColorsAfterRandomization() {
         ((PhongMaterial) vaseMesh.getMaterial()).setDiffuseColor(currentParams.bodyColor.get());
         ((PhongMaterial) spoutMesh.getMaterial()).setDiffuseColor(currentParams.bodyColor.get());
