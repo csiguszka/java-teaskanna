@@ -1,0 +1,799 @@
+\documentclass[12pt,a4paper]{article}
+
+% ----- kódolás, nyelv -----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[hungarian]{babel}
+
+% ----- betűtípus (Times New Roman közelítő) -----
+\usepackage{mathptmx}
+
+% ----- oldalgeometria -----
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+
+% ----- sortávolság -----
+\usepackage{setspace}
+\setstretch{1.2}
+
+% ----- bekezdések -----
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+% ----- matematika -----
+\usepackage{amsmath}
+
+% ----- színek -----
+\usepackage[dvipsnames,table]{xcolor}
+
+% ----- képek -----
+\usepackage{graphicx}
+\usepackage{float}
+
+% ----- táblázatok -----
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+% ----- kódlisták -----
+\usepackage{listings}
+
+\lstdefinestyle{java}{
+  language         = Java,
+  basicstyle       = \ttfamily\small,
+  keywordstyle     = \color{NavyBlue}\bfseries,
+  commentstyle     = \color{OliveGreen}\itshape,
+  stringstyle      = \color{BrickRed},
+  numbers          = left,
+  numberstyle      = \tiny\color{gray},
+  numbersep        = 8pt,
+  frame            = single,
+  rulecolor        = \color{gray!40},
+  breaklines       = true,
+  tabsize          = 4,
+  showstringspaces = false,
+  literate =
+    {á}{{\'{a}}}1 {é}{{\'{e}}}1 {í}{{\'\i}}1  {ó}{{\'{o}}}1
+    {ö}{{\"o}}1   {o"}{{\H{o}}}1 {ő}{{\H{o}}}1 {ú}{{\'{u}}}1
+    {ü}{{\"u}}1   {u"}{{\H{u}}}1 {ű}{{\H{u}}}1
+    {Á}{{\'{A}}}1 {É}{{\'{E}}}1 {Í}{{\'{I}}}1  {Ó}{{\'{O}}}1
+    {Ö}{{\"O}}1   {Ő}{{\H{O}}}1 {Ú}{{\'{U}}}1
+    {Ü}{{\"U}}1   {Ű}{{\H{U}}}1,
+}
+
+\lstdefinestyle{shell}{
+  basicstyle       = \ttfamily\small,
+  frame            = single,
+  rulecolor        = \color{gray!40},
+  backgroundcolor  = \color{gray!7},
+  breaklines       = true,
+  numbers          = none,
+}
+
+\lstdefinestyle{plain}{
+  basicstyle       = \ttfamily\small,
+  frame            = single,
+  rulecolor        = \color{gray!40},
+  breaklines       = true,
+  numbers          = none,
+}
+
+% ----- hivatkozások -----
+\usepackage[hidelinks]{hyperref}
+
+% ----- fejléc / lábléc -----
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small OOP féléves feladat}
+\fancyhead[R]{\small JavaFX 3D Teáskanna Nézegető}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ----- inline kód -----
+\newcommand{\code}[1]{\texttt{#1}}
+
+% ----- képhely placeholder -----
+% Használat: \kephely[magasság]{felirat}
+\newcommand{\kephely}[2][6cm]{%
+  \begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{14pt}%
+    \fbox{%
+      \begin{minipage}[c][#1][c]{0.88\textwidth}
+        \centering
+        {\large\color{gray}\itshape [Képernyőkép helye]}\\[0.6em]
+        {\normalsize\color{gray!80}\bfseries #2}
+      \end{minipage}%
+    }
+    \caption{#2}
+  \end{figure}%
+}
+
+% ============================================================
+\begin{document}
+% ============================================================
+
+% ---- CÍMLAP ----
+\begin{titlepage}
+  \centering
+  \vspace*{1.8cm}
+
+  {\large Miskolci Egyetem}\\[0.4cm]
+  {\large Informatikai Intézet}\\[2.2cm]
+
+  {\LARGE\bfseries Objektumorientált programozás}\\[0.6cm]
+  {\Large Féléves feladat dokumentáció}\\[1.6cm]
+
+  \rule{0.55\textwidth}{0.5pt}\\[1.4cm]
+
+  {\Large\bfseries JavaFX 3D Teáskanna Nézegető}\\[2.4cm]
+
+  \begin{tabular}{ll}
+    \textbf{Hallgató neve:} & {[Hallgató neve]}               \\[0.35cm]
+    \textbf{Neptun kód:}    & {[Neptun kód]}                  \\[0.35cm]
+    \textbf{Csoport:}       & {[Csoport]}                     \\[0.35cm]
+    \textbf{Oktató:}        & {[Oktató neve]}                 \\[0.35cm]
+    \textbf{Tanév:}         & 2024/2025. tanév, tavaszi félév \\[0.35cm]
+    \textbf{Leadás dátuma:} & {[Dátum]}                       \\
+  \end{tabular}
+
+  \vfill
+  {\small Miskolc, 2025}
+\end{titlepage}
+
+% ---- TARTALOMJEGYZÉK ----
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Bevezetés}
+% ============================================================
+
+\subsection{A feladat ismertetése}
+
+A feladat célja egy ismert, hétköznapi tárgy háromdimenziós modelljének elkészítése és
+interaktív megjelenítése JavaFX segítségével. A választott tárgy egy teáskanna, amelynek
+geometriai felépítése egyszerű forgástestek és összetett hálógenerálási technikák
+kombinációjával közelíthető meg.
+
+Az alkalmazás lehetővé teszi, hogy a felhasználó a teáskanna összes fontosabb geometriai
+paraméterét valós időben állítsa be. A módosítások azonnal megjelennek a 3D nézetben:
+a modell újragenerálódik, és a csúszkák értékeinek megfelelő alakot vesz fel. A programban
+megtalálható a mentés és betöltés funkció is, így a beállítások JSON fájlba exportálhatók,
+majd visszatölthetők.
+
+\kephely[7.5cm]{A program főablaka -- teljes nézet}
+
+\subsection{A program funkciói}
+
+Az alkalmazás az alábbi fő funkciókat valósítja meg:
+
+\begin{itemize}
+  \item \textbf{Generálás:} Az \textit{Új} menüpont véletlenszerű paraméterekkel hoz létre
+        egy új teáskannaformát.
+  \item \textbf{Törlés / Visszaállítás:} A \textit{Törlés} menüpont az összes paramétert
+        visszaállítja az alapértékekre.
+  \item \textbf{Mentés (Exportálás):} Az aktuális paraméterek JSON formátumban
+        fájlba menthetők.
+  \item \textbf{Betöltés (Importálás):} Korábban elmentett JSON fájlból visszatölthetők
+        a paraméterek.
+  \item \textbf{Rajzolás / Megjelenítés:} A 3D modell valós időben frissül minden
+        paraméterváltozásnál.
+  \item \textbf{Bemutatás:} Az egérrel a modell szabadon forgatható, az egérgörgővel
+        nagyítható és kicsinyíthető.
+\end{itemize}
+
+Az objektum öt alkatrészből áll: a váza test, a kiöntő, a fogantyú, a tetőfélgömb és
+a tető fogógombja. Mindegyik alkatrész saját színnel és paraméterekkel rendelkezik.
+
+\kephely[6cm]{A teáskanna öt alkatrésze -- jelölt nézet}
+
+\subsection{Elméleti háttér}
+
+A program középpontjában a JavaFX \code{TriangleMesh} típusa áll. A háromszöghálós
+reprezentáció a 3D grafika egyik legszélesebb körben használt módszere: az objektum
+felszínét egymáshoz illeszkedő háromszögek összessége közelíti. Minden háromszöget három
+csúcspont (vertex) határoz meg, az egymás melletti háromszögek közös csúcsokat és éleket
+osztanak meg.
+
+A váza körvonalát egy profil-görbe írja le, amelyet forgástestként körbeforgatunk a
+függőleges tengely körül (surface of revolution). Az egyes körök mentén elhelyezett
+csúcspontokból a program négyszögeket, majd azokat két-két háromszögre bontva lapokat
+(face-eket) generál.
+
+A \code{PhongMaterial} anyagmodell a fény és a felszín kölcsönhatását a diffúz
+visszaverődés alapján közelíti. Az alkalmazás egy környezeti fényforrást
+(\textit{ambient light}) és egy pontfényforrást (\textit{point light}) tartalmaz,
+amelyek egymástól függetlenül ki- és bekapcsolhatók.
+
+Az objektumorientált tervezés szempontjából a program az MVC (Model-View-Controller)
+mintát követi: a modell tárolja az adatokat, a nézet megjeleníti azokat, a vezérlő
+pedig összehangolja a kettőt. A JavaFX property-rendszere lehetővé teszi, hogy az
+adatmodell változásai automatikusan tükröződjenek a felhasználói felületen.
+
+% ============================================================
+\section{Tervezési dokumentáció}
+% ============================================================
+
+\subsection{Fejlesztői környezet}
+
+A program fejlesztéséhez az alábbi eszközök kerültek felhasználásra:
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{llX}
+    \toprule
+    \textbf{Eszköz}   & \textbf{Verzió} & \textbf{Felhasználás}                          \\
+    \midrule
+    Java (JDK)        & 17              & Fejlesztési és futtatási platform               \\
+    JavaFX            & 21.0.4          & 3D grafika, kezelőfelület                       \\
+    Maven             & 3.9             & Projektmenedzsment, fordítás, függőségkezelés   \\
+    IntelliJ IDEA     & 2024.x          & Integrált fejlesztőkörnyezet                    \\
+    \bottomrule
+  \end{tabularx}
+  \caption{A fejlesztéshez használt eszközök}
+\end{table}
+
+A \code{pom.xml} konfigurációs fájl tartalmazza a szükséges függőségeket és a
+\code{javafx-maven-plugin} bővítményt, amellyel az alkalmazás közvetlenül futtatható
+Maven parancsból.
+
+A forráskód a következő főbb JavaFX-technikákat alkalmazza:
+
+\begin{itemize}
+  \item \textbf{Property binding:} a csúszkák értéke kötve van a modell tulajdonságaihoz,
+        így minden változás automatikusan kiváltja a háló újragenerálását.
+  \item \code{TriangleMesh} \textbf{és} \code{MeshView}: egyedi háromszöghálók
+        létrehozása és megjelenítése.
+  \item \code{PhongMaterial}: Phong-árnyalás az egyes alkatrészekre.
+  \item \code{PerspectiveCamera}: perspektív vetítés a 3D jelenethez.
+  \item \code{SubScene}: a 3D jelenet és a 2D kezelőfelület elkülönített megjelenítése.
+\end{itemize}
+
+\subsection{Csomagstruktúra és osztálydiagram}
+
+A projekt Maven-szabványos könyvtárstruktúrát követ, a forrásfájlok a
+\code{src/main/java/com/example/viewer/} mappában találhatók.
+
+\begin{lstlisting}[style=plain, caption={A projekt csomagstruktúrája}]
+com.example.viewer
++-- MainApp.java
++-- controller/
+|   +-- MainController.java
++-- model/
+|   +-- VaseParameters.java
++-- view/
+|   +-- ControlPanel.java
+|   +-- HelpDialog.java
++-- geometry/
+|   +-- VaseMeshGenerator.java
+|   +-- SpoutMeshGenerator.java
+|   +-- HandleMeshGenerator.java
+|   +-- LidDomeMeshGenerator.java
+|   +-- LidKnobMeshGenerator.java
++-- utils/
+    +-- MathUtils.java
+    +-- SceneExporter.java
+\end{lstlisting}
+
+\textbf{Osztályok és felelősségeik:}
+
+\textbf{\code{MainApp}} az alkalmazás belépési pontja. Kiterjeszti a JavaFX
+\code{Application} osztályt, és a \code{start()} metódusban átadja a vezérlést a
+\code{MainController} osztálynak.
+
+\textbf{\code{VaseParameters}} tárolja az összes paramétert JavaFX property objektumok
+formájában. Ezek közvetlenül köthetők csúszkákhoz és egyéb vezérlőkhöz. A
+\code{handlePos} property felülírja a \code{set()} metódust, hogy a fogantyú pozíciója
+mindig a váza magasságán belül maradjon (kényszerfeltétel).
+
+\textbf{\code{MainController}} felügyeli a 3D jelenetet, az egérvezérlést és az összes
+\code{MeshView} objektumot. Létrehozza és inicializálja az összes alkatrészt, kezeli a
+menüpontokat, és összehangolja a fényforrások állapotát.
+
+\textbf{\code{ControlPanel}} statikus gyártó osztály. A \code{createControlPanel()}
+metódus az összes csúszkát, színválasztót és jelölőnégyzetet összegyűjti egy
+görgetőpanelba. A csúszka-értékek megváltozásakor minden alkatrész hálója
+újragenerálódik.
+
+\textbf{\code{HelpDialog}} egy modális párbeszédablak, amely a program kezelési
+útmutatóját tartalmazza.
+
+\textbf{A \code{geometry} csomag} osztályai mind egyetlen statikus metódust tartalmaznak,
+amely visszaadja az adott alkatrész \code{TriangleMesh} objektumát. Ez a kialakítás
+biztosítja, hogy az egyes geometriagenerátorok egymástól függetlenül fejleszthetők és
+tesztelhetők legyenek.
+
+\textbf{\code{MathUtils}} matematikai segédmetódusokat tartalmaz: a váza profil-sugarának
+kiszámítását, a \code{smoothStep} interpolációs függvényt és a kiöntő
+súlymaszk-számítását.
+
+\textbf{\code{SceneExporter}} az exportálási és importálási logikát valósítja meg.
+Külső könyvtár nélkül, kézzel írott JSON-sorosítással dolgozik.
+
+\kephely[10cm]{UML osztálydiagram}
+
+\subsection{Algoritmusok leírása}
+
+\subsubsection{Váza profil és forgástest-generálás}
+
+A váza külső sugarát az alábbi képlet adja meg minden $t$ paraméterértékre
+(ahol $t \in [0,\,1]$ a relatív magasság):
+
+\begin{equation}
+  r(t) \;=\; r_0
+           + b \cdot \sin(\pi t)
+           + 9 \cdot \sin(2{,}3\pi t + 0{,}4)
+           - n \cdot t^{1{,}4}
+\end{equation}
+
+ahol $r_0$ az alapsugár (\code{baseRadius}), $b$ a hasasodás mértéke
+(\code{bellyAmount}), $n$ a nyakszűkület (\code{neckTaper}).
+
+A $\sin(\pi t)$ tag biztosítja a hasasodást: az alján és tetején kisebb, középen
+nagyobb a sugár. A második szinuszos tag finomabb hullámos felületet ad.
+A $n \cdot t^{1{,}4}$ kifejezés a felső rész fokozatos szűkülését modellezi.
+
+A forgástest-generálás lépései:
+\begin{enumerate}
+  \item A program 64 vízszintes gyűrűt számol ki a magasság mentén.
+  \item Minden gyűrűn 72 (alapértelmezés szerint) pontot helyez el egyenlő
+        szögtávolságra.
+  \item A szomszédos gyűrűk pontjait két háromszöggel köti össze
+        (négyszögfelosztás).
+  \item Az alsó laphoz középpontot vesz fel, amelyből háromszögek mutatnak kifelé.
+  \item A belső falat ugyanígy generálja, de a sugárból kivonja a falvastagságot;
+        a felső és alsó perem összekötésével zárt testet kap.
+\end{enumerate}
+
+\subsubsection{Kiöntő generálása}
+
+A kiöntő nem külön testként, hanem a váza testének deformációjaként jelenik meg.
+Minden csúcspont esetén kiszámít egy \code{spoutWeight} értéket ($\in [0,1]$), amely
+megmondja, hogy az adott pont mennyire vesz részt a kiöntőben.
+
+\begin{lstlisting}[style=java, caption={A kiöntő súlymaszk-számítása (MathUtils.java)}]
+float topMask     = smoothStep(0.68f, 1.0f, t);        // csak a felso 32%
+float widthRad    = toRadians(spoutWidth * 0.5);        // szogszelesseg
+float angularMask = exp(-(centeredAngle / widthRad)^2); // Gauss-ablak
+spoutWeight       = topMask * angularMask;
+\end{lstlisting}
+
+A \code{smoothStep} függvény: $s(t) = t^{2}(3 - 2t)$, amely derivált-folytonos
+átmenetet biztosít. A kiöntő csúcspontja eltolódik kifelé
+($r \mathrel{+}= \text{spoutLength} \cdot w$) és felfelé
+($y \mathrel{+}= \text{spoutLift} \cdot w$). Ezáltal a kiöntő sima átmenettel olvad
+bele a váza testébe.
+
+\subsubsection{Fogantyú generálása}
+
+A fogantyú egy félkör ívből kihúzott tóruszcikk. Az ív 33 pont mentén halad
+(32 szegmens), minden pontban egy 9 csúcsból álló körzetes keresztmetszettel.
+A háló $32 \times 8$ négyszöglapot tartalmaz.
+
+A fogantyú pozíciójának korlátja automatikusan érvényesül: a
+\code{VaseParameters.handlePos} property \code{set()} metódusa mindig a váza
+magasságán belülre szorítja az értéket, a \code{ControlPanel.enforceHandleInsideBounds()}
+metódus pedig a fogantyú méretét is korlátozza, hogy ne lógjon ki a teáskanna keretéből.
+
+\subsubsection{Exportálás és importálás}
+
+Az exportálás kézzel írott JSON formátumot alkalmaz, külső könyvtár nélkül.
+Az importálás reguláris kifejezésekkel elemzi a fájlt, és ha valamely kulcs hiányzik,
+az aktuális értéket tartja meg (graceful degradation). A fájlkezelés szabványos Java
+I/O osztályokkal (\code{FileWriter}, \code{BufferedReader}) történik.
+
+% ============================================================
+\section{Felhasználói dokumentáció}
+% ============================================================
+
+\subsection{Telepítés}
+
+Az alkalmazás futtatásához az alábbiak szükségesek:
+
+\begin{itemize}
+  \item \textbf{Java Development Kit (JDK) 17 vagy újabb.} Letölthető az
+        \href{https://adoptium.net}{\texttt{adoptium.net}} oldalról. Telepítés után a
+        \code{java -version} parancsnak legalább \code{17.x.x} verziószámot kell
+        mutatnia.
+  \item \textbf{Apache Maven 3.6 vagy újabb.} Letölthető a
+        \href{https://maven.apache.org}{\texttt{maven.apache.org}} oldalról. A
+        \code{mvn -version} paranccsal ellenőrizhető.
+\end{itemize}
+
+A JavaFX könyvtárakat a Maven automatikusan letölti az első fordítás során, külön
+telepítés nem szükséges. Az alkalmazás forráskódját tartalmazza a mellékelt ZIP
+archívum, amelyet tetszőleges mappába kell kicsomagolni.
+
+\subsection{Futtatás}
+
+A program terminálból (Windows: Command Prompt vagy PowerShell) indítható el.
+Először a projekt mappájába kell navigálni:
+
+\begin{lstlisting}[style=shell]
+cd C:\[elérési út]\javafx-3d-object-viewer
+\end{lstlisting}
+
+Ezt követően a fordítás és futtatás egyetlen paranccsal elvégezhető:
+
+\begin{lstlisting}[style=shell]
+mvn javafx:run
+\end{lstlisting}
+
+Az első futtatásnál a Maven letölti a szükséges függőségeket, ez néhány percet vehet
+igénybe aktív internetkapcsolat esetén. Ha csak fordítani szeretnénk a futtatás nélkül:
+
+\begin{lstlisting}[style=shell]
+mvn compile
+\end{lstlisting}
+
+\subsection{Menüstruktúra és kezelőfelület}
+
+\subsubsection*{Főablak}
+
+Az alkalmazás ablaka két fő részre oszlik:
+
+\begin{itemize}
+  \item \textbf{Bal oldali vezérlőpanel:} itt találhatók a csúszkák, a színválasztók
+        és a fény-kapcsolók. A panel görgethető, ha a tartalom nem fér el.
+  \item \textbf{Jobb oldali 3D nézet:} a teáskanna interaktívan forgatható
+        és nagyítható.
+\end{itemize}
+
+\kephely[7cm]{A főablak elrendezése -- vezérlőpanel és 3D nézet}
+
+\subsubsection*{Fájl menü}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{lX}
+    \toprule
+    \textbf{Menüpont}   & \textbf{Funkció}                                                   \\
+    \midrule
+    Új                  & Véletlenszerű paraméterekkel generál egy új kannaformát            \\
+    Törlés              & Az összes paramétert visszaállítja az alapértékekre                \\
+    Exportálás\ldots    & Fájlmentési párbeszédet nyit; a paramétereket JSON fájlba menti    \\
+    Importálás\ldots    & Fájlmegnyitási párbeszédet nyit; JSON fájlból tölti be a paramétereket \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Fájl menü elemei}
+\end{table}
+
+\kephely[4cm]{A Fájl menü nyitott állapotban}
+
+\subsubsection*{Súgó menü}
+
+A \textit{Súgó megjelenítése} menüpont egy modális ablakot nyit meg, amely
+összefoglalja az egérvezérlés, a csúszkák, a fájlkezelés és az alkatrészek
+kezelésének módját.
+
+\kephely[5cm]{A súgó párbeszédablak}
+
+\subsubsection*{Vezérlőpanel részletei}
+
+\textbf{Szín beállítások:} Négy \code{ColorPicker} vezérlő áll rendelkezésre a test,
+a fogantyú, a tető félgömb és a tető fogógombja számára. A szín megváltoztatása
+azonnal megjelenik a 3D nézetben.
+
+\textbf{Fények:} Két jelölőnégyzet (\code{CheckBox}) kapcsolja be és ki a környezeti
+fényt és a pontfényforrást.
+
+\kephely[6cm]{A vezérlőpanel -- szín és fény beállítások}
+
+\bigskip
+\textbf{Váza paraméterek:}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{llX}
+    \toprule
+    \textbf{Csúszka} & \textbf{Tartomány} & \textbf{Leírás}                                         \\
+    \midrule
+    Magasság         & 170 -- 280         & A váza teljes magassága                                  \\
+    Falvastagság     & 4 -- 10            & A váza falának vastagsága                                \\
+    Hasasodás        & 6 -- 46            & Mennyire pocakos a váza középső része                    \\
+    Nyakszűkület     & 0 -- 22            & Mennyire szűkül a váza fölfelé haladva                   \\
+    Alsó sugár       & 30 -- 62           & A váza alapsugarának mérete                              \\
+    Felbontás        & 24 -- 128          & A radiális szegmensek száma; nagyobb érték simább felületet ad \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Váza alapparaméterek}
+\end{table}
+
+\textbf{Kiöntő paraméterek:}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{llX}
+    \toprule
+    \textbf{Csúszka}   & \textbf{Tartomány} & \textbf{Leírás}                          \\
+    \midrule
+    Kiöntő hossza      & 4 -- 30            & Mennyire áll ki a kiöntő                 \\
+    Kiöntő szélessége  & 15 -- 120          & A kiöntő szögszélessége fokban           \\
+    Ajak emelés        & $-20$ -- 18        & A kiöntő ajkának függőleges eltolása     \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Kiöntő paraméterek}
+\end{table}
+
+\textbf{Tető paraméterek:}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{llX}
+    \toprule
+    \textbf{Csúszka} & \textbf{Tartomány} & \textbf{Leírás}                            \\
+    \midrule
+    Tető magasság    & 20 -- 56           & A tetőfélgömb magassága                     \\
+    Fogó magasság    & 8 -- 42            & A tető fogógombjának magassága              \\
+    Fogó sugár       & 10 -- 20           & A fogógomb alapsugarának mérete             \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Tető paraméterek}
+\end{table}
+
+\textbf{Fogantyú paraméterek:}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{llX}
+    \toprule
+    \textbf{Csúszka} & \textbf{Tartomány} & \textbf{Leírás}                                   \\
+    \midrule
+    Fogó méret       & 20 -- 80           & A fogantyú ívsugarának mérete                      \\
+    Fogó pozíció     & $-140$ -- 140      & A fogantyú függőleges helyzete a vázán             \\
+    Fogó vastagság   & 4 -- 16            & A fogantyú keresztmetszetének átmérője             \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Fogantyú paraméterek}
+\end{table}
+
+\subsubsection*{3D nézet vezérlése}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{lX}
+    \toprule
+    \textbf{Mozdulat}        & \textbf{Hatás}                                       \\
+    \midrule
+    Bal egérgomb + húzás     & A modell forgatása X és Y tengely körül              \\
+    Egérgörgő felfelé        & Közelítés (zoom in)                                  \\
+    Egérgörgő lefelé         & Távolítás (zoom out)                                 \\
+    \bottomrule
+  \end{tabularx}
+  \caption{3D nézet egérvezérlése}
+\end{table}
+
+A kamera távolságának határa 200 és 2000 egység között van rögzítve, hogy a modell
+ne tűnhessen el a látótérből.
+
+\kephely[6.5cm]{A 3D nézet -- forgatott és nagyított teáskanna}
+
+\subsection{Hibakezelés}
+
+\textbf{Importálási hiba:} Ha a kiválasztott JSON fájl olvasása közben hiba lép fel
+(pl. sérült fájl, hiányzó kulcsok), az alkalmazás hibaüzenetes párbeszédablakot jelenít
+meg, és megtartja az aktuálisan érvényes paramétereket. Részlegesen érvényes fájlok
+esetén az olvasható értékek betöltődnek, a hiányzók helyett az előző értékek maradnak.
+
+\textbf{Exportálási hiba:} Ha az exportálás során írási hiba lép fel (pl. nincs írási
+jog a kiválasztott mappában), a program szintén hibaüzenetet jelenít meg.
+
+\textbf{Fogantyú korlátok:} A fogantyú pozíciójára és méretére automatikus
+kényszerfeltétel vonatkozik. Ha a magasság csúszkájának megváltoztatása után a fogantyú
+kilógna a vázáról, a program automatikusan a megengedett tartományba korrigálja az
+értéket. Erről értesítés nem jelenik meg, mivel a korrekció folyamatos és a felhasználó
+számára láthatatlan marad.
+
+\textbf{Ismeretlen JavaFX hiba:} Ha a Java vagy a JavaFX nincs megfelelően telepítve,
+a program terminálban hibaüzenetet ír ki. Ilyen esetben ellenőrizni kell a JDK és a
+Maven verzióját.
+
+\kephely[4cm]{Hibaüzenet párbeszédablak -- importálási hiba példa}
+
+% ============================================================
+\section{Irodalomjegyzék}
+% ============================================================
+
+\begin{enumerate}
+  \item Sharan, K.: \textit{Learn JavaFX 17 -- Building User Experience and Interfaces
+        with Java}. Apress, 2022.
+
+  \item Bloch, J.: \textit{Effective Java}. 3.~kiadás. Addison-Wesley, 2018.
+
+  \item Oracle Corporation: \textit{JavaFX API Documentation}. [online] Elérhető:
+        \url{https://openjfx.io/javadoc/21/} [Letöltve: 2025. január]
+
+  \item OpenJFX Contributors: \textit{OpenJFX Getting Started Guide}. [online]
+        Elérhető: \url{https://openjfx.io/openjfx-docs/}
+        [Letöltve: 2025. január]
+
+  \item Apache Software Foundation: \textit{Maven Getting Started Guide}. [online]
+        Elérhető: \url{https://maven.apache.org/guides/getting-started/}
+        [Letöltve: 2025. február]
+
+  \item Hughes, J.~F., Van Dam, A., McGuire, M. et al.:
+        \textit{Computer Graphics: Principles and Practice}. 3.~kiadás.
+        Addison-Wesley, 2014.
+\end{enumerate}
+
+% ============================================================
+\section{Melléklet}
+% ============================================================
+
+\subsection{Forráskód}
+
+A forráskód a projekt \code{src/main/java/com/example/viewer/} könyvtárában
+található. A következő osztályok teljes kódja kerül közlésre; a geometriageneráló
+osztályok (\code{geometry} csomag) a mellékelt ZIP archívumban olvashatók.
+
+\subsubsection*{MainApp.java}
+
+\begin{lstlisting}[style=java, caption={MainApp.java -- belépési pont}]
+package com.example.viewer;
+
+import com.example.viewer.controller.MainController;
+import javafx.application.Application;
+import javafx.stage.Stage;
+
+public class MainApp extends Application {
+
+    private MainController controller;
+
+    @Override
+    public void start(Stage stage) {
+        controller = new MainController();
+        controller.start(stage);
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+\end{lstlisting}
+
+\subsubsection*{model/VaseParameters.java}
+
+\begin{lstlisting}[style=java, caption={VaseParameters.java -- adatmodell}]
+package com.example.viewer.model;
+
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.scene.paint.Color;
+
+public class VaseParameters {
+    public final DoubleProperty height          = new SimpleDoubleProperty(260);
+    public final DoubleProperty wallThickness   = new SimpleDoubleProperty(10);
+    public final DoubleProperty bellyAmount     = new SimpleDoubleProperty(22);
+    public final DoubleProperty neckTaper       = new SimpleDoubleProperty(4);
+    public final DoubleProperty baseRadius      = new SimpleDoubleProperty(38);
+    public final IntegerProperty radialSegments = new SimpleIntegerProperty(72);
+
+    public final DoubleProperty spoutLength     = new SimpleDoubleProperty(12);
+    public final DoubleProperty spoutWidth      = new SimpleDoubleProperty(70);
+    public final DoubleProperty spoutLift       = new SimpleDoubleProperty(7);
+
+    public final DoubleProperty lidHeight       = new SimpleDoubleProperty(30);
+    public final DoubleProperty knobHeight      = new SimpleDoubleProperty(20);
+    public final DoubleProperty knobRadius      = new SimpleDoubleProperty(12);
+
+    public final DoubleProperty handleSize      = new SimpleDoubleProperty(40);
+    public final DoubleProperty handleThickness = new SimpleDoubleProperty(8);
+
+    public final DoubleProperty handlePos = new SimpleDoubleProperty(0) {
+        @Override
+        public void set(double value) {
+            double min = -height.get() / 2;
+            double max =  height.get() / 2;
+            super.set(Math.max(min, Math.min(max, value)));
+        }
+    };
+
+    public final javafx.beans.property.ObjectProperty<Color> bodyColor =
+        new javafx.beans.property.SimpleObjectProperty<>(Color.rgb(210, 130, 80));
+    public final javafx.beans.property.ObjectProperty<Color> handleColor =
+        new javafx.beans.property.SimpleObjectProperty<>(Color.rgb(180, 100, 60));
+    public final javafx.beans.property.ObjectProperty<Color> lidDomeColor =
+        new javafx.beans.property.SimpleObjectProperty<>(Color.rgb(196, 116, 72));
+    public final javafx.beans.property.ObjectProperty<Color> lidKnobColor =
+        new javafx.beans.property.SimpleObjectProperty<>(Color.rgb(220, 140, 80));
+
+    public final javafx.beans.property.BooleanProperty ambientLightEnabled =
+        new javafx.beans.property.SimpleBooleanProperty(true);
+    public final javafx.beans.property.BooleanProperty pointLightEnabled =
+        new javafx.beans.property.SimpleBooleanProperty(true);
+}
+\end{lstlisting}
+
+\subsubsection*{utils/MathUtils.java}
+
+\begin{lstlisting}[style=java, caption={MathUtils.java -- matematikai segédfüggvények}]
+package com.example.viewer.utils;
+
+public class MathUtils {
+
+    public static float smoothStep(float edge0, float edge1, float x) {
+        float t = (x - edge0) / (edge1 - edge0);
+        t = Math.max(0f, Math.min(1f, t));
+        return t * t * (3f - 2f * t);
+    }
+
+    public static float findMaxVaseRadius(
+            com.example.viewer.model.VaseParameters params) {
+        float maxRadius = 0f;
+        for (int i = 0; i <= 120; i++) {
+            float t = (float) i / 120f;
+            maxRadius = Math.max(maxRadius, vaseProfileRadius(t, params));
+        }
+        return maxRadius;
+    }
+
+    public static float vaseProfileRadius(
+            float t, com.example.viewer.model.VaseParameters params) {
+        return (float) params.baseRadius.get()
+             + (float) params.bellyAmount.get() * (float) Math.sin(Math.PI * t)
+             + 9f * (float) Math.sin(2.3 * Math.PI * t + 0.4)
+             - (float) params.neckTaper.get() * (float) Math.pow(t, 1.4);
+    }
+
+    public static float computeSpoutWeight(
+            float t, double angle,
+            com.example.viewer.model.VaseParameters params) {
+        float topMask    = smoothStep(0.68f, 1.0f, t);
+        float widthRad   = (float) Math.toRadians(params.spoutWidth.get() * 0.5);
+        widthRad         = Math.max(0.12f, widthRad);
+        float centered   = (float) Math.atan2(
+            Math.sin(angle - Math.PI), Math.cos(angle - Math.PI));
+        float angularMask = (float) Math.exp(
+            -Math.pow(centered / widthRad, 2.0));
+        return topMask * angularMask;
+    }
+}
+\end{lstlisting}
+
+\subsection{Értékelő lap}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    \textbf{Szempont}       & \textbf{Max. pont} & \textbf{Kapott pont} \\
+    \midrule
+    Dokumentáció            & 5                  &                      \\
+    Program működés         & 5                  &                      \\
+    Megvalósítás minősége   & 5                  &                      \\
+    Bemutató                & 5                  &                      \\
+    \midrule
+    \textbf{Összesen}       & \textbf{20}        &                      \\
+    \bottomrule
+  \end{tabular}
+  \caption{Értékelő lap}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{cc}
+    \toprule
+    \textbf{Pont} & \textbf{Jegy}    \\
+    \midrule
+    0 -- 7        & 1 (elégtelen)    \\
+    8 -- 10       & 2 (elégséges)    \\
+    11 -- 13      & 3 (közepes)      \\
+    14 -- 16      & 4 (jó)           \\
+    17 -- 20      & 5 (jeles)        \\
+    \bottomrule
+  \end{tabular}
+  \caption{Ponthatárok és jegyek}
+\end{table}
+
+\bigskip
+\noindent\textbf{Elért jegy:}\quad \underline{\hspace{3.5cm}}
+
+\bigskip
+\noindent\textbf{Megjegyzés:}\quad \underline{\hspace{9cm}}
+
+\bigskip
+\noindent\textbf{Aláírás:}\quad \underline{\hspace{5cm}}
+
+\end{document}
