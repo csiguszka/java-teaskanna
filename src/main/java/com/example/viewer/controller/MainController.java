@@ -14,6 +14,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -48,6 +49,8 @@ public class MainController {
     }
 
     public void start(Stage stage) {
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/kancso.png")));
+
         worldGroup = new Group();
         Group objectGroup = new Group();
 
