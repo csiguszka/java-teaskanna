@@ -21,7 +21,7 @@ public class SceneExporter {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Exportálás");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON fájl", "*.json"));
-        chooser.setInitialFileName("vaza.json");
+        chooser.setInitialFileName("kancso.json");
 
         File file = chooser.showSaveDialog(owner);
         if (file == null) return;

@@ -99,7 +99,7 @@ public class VaseMeshGenerator {
         int outerTop = verticalSegments * ringSize;
         int innerTop = innerOffset + verticalSegments * ringSize;
 
-        // Peremvastagsag
+        // Peremvastagság
         for (int ri = 0; ri < radialSegments; ri++) {
             int ot0 = outerTop + ri;
             int ot1 = outerTop + ri + 1;

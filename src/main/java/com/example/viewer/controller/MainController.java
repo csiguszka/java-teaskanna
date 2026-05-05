@@ -44,8 +44,7 @@ public class MainController {
 
     public MainController() {
         currentParams = new VaseParameters();
-        currentParams.ambientLightEnabled.addListener((obs, oldVal, newVal) -> updateLightsVisibility());
-        currentParams.pointLightEnabled.addListener((obs, oldVal, newVal) -> updateLightsVisibility());
+        // Lights are always enabled - no toggle controls
     }
 
     public void start(Stage stage) {
@@ -125,7 +124,7 @@ public class MainController {
         scene.setFill(Color.rgb(20, 20, 26));
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
-        stage.setTitle("3D Objektum Nezegeto");
+        stage.setTitle("3D paraméterezhető Teáskanna");
         stage.setScene(scene);
         stage.setResizable(true);
         stage.setMinWidth(1280);
@@ -234,29 +233,29 @@ public class MainController {
     private void resetToDefaults() {
         VaseParameters params = currentParams;
 
-        params.height.set(260);
-        params.wallThickness.set(10);
-        params.bellyAmount.set(22);
-        params.neckTaper.set(4);
-        params.baseRadius.set(38);
-        params.radialSegments.set(72);
+        params.height.set(170.0);
+        params.wallThickness.set(8.85);
+        params.bellyAmount.set(6.0);
+        params.neckTaper.set(13.00);
+        params.baseRadius.set(45.0);
+        params.radialSegments.set(92);
 
-        params.spoutLength.set(12);
-        params.spoutWidth.set(70);
-        params.spoutLift.set(7);
+        params.spoutLength.set(19.9);
+        params.spoutWidth.set(34.0);
+        params.spoutLift.set(3.0);
 
-        params.lidHeight.set(30);
-        params.knobHeight.set(20);
-        params.knobRadius.set(12);
+        params.lidHeight.set(29.0);
+        params.knobHeight.set(11.0);
+        params.knobRadius.set(13.0);
 
-        params.handleSize.set(40);
-        params.handleThickness.set(8);
-        params.handlePos.set(0);
+        params.handleSize.set(38.0);
+        params.handleThickness.set(10.2);
+        params.handlePos.set(57.3);
 
-        params.bodyColor.set(Color.rgb(210, 130, 80));
-        params.handleColor.set(Color.rgb(180, 100, 60));
-        params.lidDomeColor.set(Color.rgb(196, 116, 72));
-        params.lidKnobColor.set(Color.rgb(220, 140, 80));
+        params.bodyColor.set(Color.web("#808080"));
+        params.handleColor.set(Color.web("#FFFFFF"));
+        params.lidDomeColor.set(Color.web("#FFFFFF"));
+        params.lidKnobColor.set(Color.web("#808080"));
 
         params.ambientLightEnabled.set(true);
         params.pointLightEnabled.set(true);
@@ -299,13 +298,11 @@ public class MainController {
     }
     
     private void updateLightsVisibility() {
-        worldGroup.getChildren().remove(ambientLight);
-        worldGroup.getChildren().remove(pointLight);
-        
-        if (currentParams.ambientLightEnabled.get()) {
+        // Lights are always enabled
+        if (!worldGroup.getChildren().contains(ambientLight)) {
             worldGroup.getChildren().add(ambientLight);
         }
-        if (currentParams.pointLightEnabled.get()) {
+        if (!worldGroup.getChildren().contains(pointLight)) {
             worldGroup.getChildren().add(pointLight);
         }
     }

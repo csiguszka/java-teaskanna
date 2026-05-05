@@ -353,7 +353,7 @@ megmondja, hogy az adott pont mennyire vesz részt a kiöntőben.
 
 \begin{lstlisting}[style=java, caption={A kiöntő súlymaszk-számítása (MathUtils.java)}]
 float topMask     = smoothStep(0.68f, 1.0f, t);        // csak a felso 32%
-float widthRad    = toRadians(spoutWidth * 0.5);        // szogszelesseg
+float widthRad    = toRadians(spoutWidth * 0.5);        // szogszélesség
 float angularMask = exp(-(centeredAngle / widthRad)^2); // Gauss-ablak
 spoutWeight       = topMask * angularMask;
 \end{lstlisting}

@@ -57,6 +57,16 @@ public class SpoutMeshGenerator {
             }
         }
 
+        // Close the bottom opening so the spout has a base.
+        float bottomCenterY = yValues[0];
+        int bottomCenterIndex = mesh.getPoints().size() / 3;
+        mesh.getPoints().addAll(0f, bottomCenterY, 0f);
+        for (int ri = 0; ri < radialSegments; ri++) {
+            int b0 = ri;
+            int b1 = ri + 1;
+            mesh.getFaces().addAll(bottomCenterIndex, 0, b1, 0, b0, 0);
+        }
+
         return mesh;
     }
 }
