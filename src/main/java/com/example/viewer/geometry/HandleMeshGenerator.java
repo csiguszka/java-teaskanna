@@ -106,7 +106,62 @@ public class HandleMeshGenerator {
                 mesh.getFaces().addAll(p1, 0, p2, 0, p3, 0);
             }
         }
+
+        removeFacesInsideVaseInterior(mesh, params);
         
         return mesh;
+    }
+
+    private static void removeFacesInsideVaseInterior(TriangleMesh mesh, VaseParameters params) {
+        float[] points = new float[mesh.getPoints().size()];
+        mesh.getPoints().toArray(points);
+
+        int[] faces = new int[mesh.getFaces().size()];
+        mesh.getFaces().toArray(faces);
+
+        int[] filteredFaces = new int[faces.length];
+        int out = 0;
+
+        // JavaFX TriangleMesh faces: [p0, t0, p1, t1, p2, t2]
+        for (int i = 0; i < faces.length; i += 6) {
+            int p0 = faces[i];
+            int p1 = faces[i + 2];
+            int p2 = faces[i + 4];
+
+            float cX = (points[p0 * 3] + points[p1 * 3] + points[p2 * 3]) / 3f;
+            float cY = (points[p0 * 3 + 1] + points[p1 * 3 + 1] + points[p2 * 3 + 1]) / 3f;
+            float cZ = (points[p0 * 3 + 2] + points[p1 * 3 + 2] + points[p2 * 3 + 2]) / 3f;
+
+            if (isInsideVaseInteriorAfterHandleRotation(cX, cY, cZ, params)) {
+                continue;
+            }
+
+            filteredFaces[out++] = faces[i];
+            filteredFaces[out++] = faces[i + 1];
+            filteredFaces[out++] = faces[i + 2];
+            filteredFaces[out++] = faces[i + 3];
+            filteredFaces[out++] = faces[i + 4];
+            filteredFaces[out++] = faces[i + 5];
+        }
+
+        mesh.getFaces().clear();
+        mesh.getFaces().addAll(filteredFaces, 0, out);
+    }
+
+    private static boolean isInsideVaseInteriorAfterHandleRotation(float localX, float localY, float localZ, VaseParameters params) {
+        float totalHeight = (float) params.height.get();
+        float yStart = -totalHeight / 2f;
+        float worldY = -localX; // handle later gets Rotate(-90, Z), then newY = -oldX
+        float t = (worldY - yStart) / totalHeight;
+
+        if (t < 0f || t > 1f) {
+            return false;
+        }
+
+        float outerRadius = MathUtils.vaseProfileRadius(t, params);
+        float innerRadius = Math.max(10f, outerRadius - (float) params.wallThickness.get());
+        float radialDistance = (float) Math.sqrt(localY * localY + localZ * localZ);
+
+        return radialDistance < innerRadius;
     }
 }
