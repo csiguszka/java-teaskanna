@@ -17,7 +17,7 @@ public class ControlPanel {
         panel.setPadding(new Insets(14, 14, 14, 14));
         panel.setStyle("-fx-background-color: #2c2c36; -fx-border-color: #4a4a58; -fx-border-width: 0 1 0 0;");
 
-        Label title = new Label("Kancsó parameterek");
+        Label title = new Label("Kancsó paraméterek");
         title.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold;");
         panel.getChildren().add(title);
         
@@ -31,7 +31,7 @@ public class ControlPanel {
         panel.getChildren().add(createColorControl("Tető félgömb színe", params.lidDomeColor, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createColorControl("Tető fogó színe", params.lidKnobColor, vase, spout, handle, lidDome, lidKnob, params));
         
-        Label vaseTitle = new Label("Kancsó parameterek");
+        Label vaseTitle = new Label("Kancsó paraméterek");
         vaseTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(vaseTitle);
         
@@ -41,21 +41,21 @@ public class ControlPanel {
         panel.getChildren().add(createSliderControl("Alsó sugár", params.baseRadius, 30, 62, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Felbontás", params.radialSegments, 24, 128, vase, spout, handle, lidDome, lidKnob, params));
 
-        Label spoutTitle = new Label("Kiöntő parameterek");
+        Label spoutTitle = new Label("Kiöntő paraméterek");
         spoutTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(spoutTitle);
         panel.getChildren().add(createSliderControl("Kiöntő hossza", params.spoutLength, 4, 30, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Kiöntő szélesség", params.spoutWidth, 15, 120, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Ajak emelés", params.spoutLift, -20, 18, vase, spout, handle, lidDome, lidKnob, params));
 
-        Label lidTitle = new Label("Tető parameterek");
+        Label lidTitle = new Label("Tető paraméterek");
         lidTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(lidTitle);
         panel.getChildren().add(createSliderControl("Tető magasság", params.lidHeight, 20, 56, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Fogó magasság", params.knobHeight, 8, 42, vase, spout, handle, lidDome, lidKnob, params));
-        panel.getChildren().add(createSliderControl("Fogó sugar", params.knobRadius, 10, 20, vase, spout, handle, lidDome, lidKnob, params));
+        panel.getChildren().add(createSliderControl("Fogó sugár", params.knobRadius, 10, 20, vase, spout, handle, lidDome, lidKnob, params));
         
-        Label handleTitle = new Label("Fogó parameterek");
+        Label handleTitle = new Label("Fogó paraméterek");
         handleTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(handleTitle);
         panel.getChildren().add(createSliderControl("Fogó meret", params.handleSize, 20, 80, vase, spout, handle, lidDome, lidKnob, params));

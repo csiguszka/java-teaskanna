@@ -131,7 +131,7 @@ com.example.viewer
 
 **A geometry csomag** osztályai mind egyetlen statikus metódust tartalmaznak, amely visszaadja az adott alkatrész `TriangleMesh` objektumát. Ez a kialakítás biztosítja, hogy az egyes geometriagenerátorok egymástól függetlenül fejleszthetők és tesztelhetők legyenek.
 
-**`MathUtils`** matematikai segédmetódusokat tartalmaz: a váza profil-sugarának kiszámítását, a `smoothStep` interpolációs függvényt és a kiöntő súlymaszk-számítását.
+**`MathUtils`** matematikai segédmetódusokat tartalmaz: a váza profil-sugárának kiszámítását, a `smoothStep` interpolációs függvényt és a kiöntő súlymaszk-számítását.
 
 **`SceneExporter`** az exportálási és importálási logikát valósítja meg. Külső könyvtár nélkül, kézzel írott JSON-sorosítással dolgozik.
 
@@ -187,7 +187,7 @@ com.example.viewer
 
 #### 2.3.1. Váza profil és forgástest-generálás
 
-A váza külső sugarát az alábbi képlet adja meg minden `t` paraméterértékre (ahol `t` a 0 és 1 közé eső relatív magasság):
+A váza külső sugárát az alábbi képlet adja meg minden `t` paraméterértékre (ahol `t` a 0 és 1 közé eső relatív magasság):
 
 ```
 r(t) = baseRadius
@@ -305,7 +305,7 @@ Az alkalmazás ablaka két fő részre oszlik:
 | Falvastagság | 4 - 10 | A váza falának vastagsága |
 | Hasasodás | 6 - 46 | Mennyire "pocakos" a váza középső része |
 | Nyakszűkület | 0 - 22 | Mennyire szűkül a váza fölfelé haladva |
-| Alsó sugár | 30 - 62 | A váza alapsugarának mérete |
+| Alsó sugár | 30 - 62 | A váza alapsugárának mérete |
 | Felbontás | 24 - 128 | A radiális szegmensek száma; nagyobb érték simább felületet ad |
 
 **Kiöntő paraméterek:**
@@ -322,13 +322,13 @@ Az alkalmazás ablaka két fő részre oszlik:
 |---|---|---|
 | Tető magasság | 20 - 56 | A tetőfélgömb magassága |
 | Fogó magasság | 8 - 42 | A tető fogógombjának magassága |
-| Fogó sugár | 10 - 20 | A fogógomb alapsugarának mérete |
+| Fogó sugár | 10 - 20 | A fogógomb alapsugárának mérete |
 
 **Fogantyú paraméterek:**
 
 | Csúszka | Tartomány | Leírás |
 |---|---|---|
-| Fogó méret | 20 - 80 | A fogantyú ív sugarának mérete |
+| Fogó méret | 20 - 80 | A fogantyú ív sugárának mérete |
 | Fogó pozíció | -140 - 140 | A fogantyú függőleges helyzete a vázán |
 | Fogó vastagság | 4 - 16 | A fogantyú keresztmetszetének átmérője |
 

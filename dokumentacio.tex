@@ -303,7 +303,7 @@ amely visszaadja az adott alkatrész \code{TriangleMesh} objektumát. Ez a kiala
 biztosítja, hogy az egyes geometriagenerátorok egymástól függetlenül fejleszthetők és
 tesztelhetők legyenek.
 
-\textbf{\code{MathUtils}} matematikai segédmetódusokat tartalmaz: a váza profil-sugarának
+\textbf{\code{MathUtils}} matematikai segédmetódusokat tartalmaz: a váza profil-sugárának
 kiszámítását, a \code{smoothStep} interpolációs függvényt és a kiöntő
 súlymaszk-számítását.
 
@@ -316,7 +316,7 @@ Külső könyvtár nélkül, kézzel írott JSON-sorosítással dolgozik.
 
 \subsubsection{Váza profil és forgástest-generálás}
 
-A váza külső sugarát az alábbi képlet adja meg minden $t$ paraméterértékre
+A váza külső sugárát az alábbi képlet adja meg minden $t$ paraméterértékre
 (ahol $t \in [0,\,1]$ a relatív magasság):
 
 \begin{equation}
@@ -492,7 +492,7 @@ fényt és a pontfényforrást.
     Falvastagság     & 4 -- 10            & A váza falának vastagsága                                \\
     Hasasodás        & 6 -- 46            & Mennyire pocakos a váza középső része                    \\
     Nyakszűkület     & 0 -- 22            & Mennyire szűkül a váza fölfelé haladva                   \\
-    Alsó sugár       & 30 -- 62           & A váza alapsugarának mérete                              \\
+    Alsó sugár       & 30 -- 62           & A váza alapsugárának mérete                              \\
     Felbontás        & 24 -- 128          & A radiális szegmensek száma; nagyobb érték simább felületet ad \\
     \bottomrule
   \end{tabularx}
@@ -525,7 +525,7 @@ fényt és a pontfényforrást.
     \midrule
     Tető magasság    & 20 -- 56           & A tetőfélgömb magassága                     \\
     Fogó magasság    & 8 -- 42            & A tető fogógombjának magassága              \\
-    Fogó sugár       & 10 -- 20           & A fogógomb alapsugarának mérete             \\
+    Fogó sugár       & 10 -- 20           & A fogógomb alapsugárának mérete             \\
     \bottomrule
   \end{tabularx}
   \caption{Tető paraméterek}
@@ -539,7 +539,7 @@ fényt és a pontfényforrást.
     \toprule
     \textbf{Csúszka} & \textbf{Tartomány} & \textbf{Leírás}                                   \\
     \midrule
-    Fogó méret       & 20 -- 80           & A fogantyú ívsugarának mérete                      \\
+    Fogó méret       & 20 -- 80           & A fogantyú ívsugárának mérete                      \\
     Fogó pozíció     & $-140$ -- 140      & A fogantyú függőleges helyzete a vázán             \\
     Fogó vastagság   & 4 -- 16            & A fogantyú keresztmetszetének átmérője             \\
     \bottomrule

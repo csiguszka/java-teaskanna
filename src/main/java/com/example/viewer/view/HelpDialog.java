@@ -42,11 +42,8 @@ public class HelpDialog {
             sectionTitle("📐  Alkatrészek"),
             item("Váza test",      "Magasság, falvastagság, hasasodás, nyakszűkület, alapsugár"),
             item("Kiöntő",         "Hossz, szélesség, ajak-emelés"),
-            item("Tető",           "Félgömb magassága; fogantyú magassága és sugara"),
-            item("Fogantyú",       "Méret, vastagság, függőleges pozíció (váza határain belül tartva)"),
-
-            sectionTitle("ℹ  Névjegy"),
-            plain("JavaFX 3D Teáskanna Néző  –  Java 17 + JavaFX 21")
+            item("Tető",           "Félgömb magassága; fogantyú magassága és sugára"),
+            item("Fogantyú",       "Méret, vastagság, függőleges pozíció (váza határain belül tartva)")
         );
 
         ScrollPane scroll = new ScrollPane(root);
