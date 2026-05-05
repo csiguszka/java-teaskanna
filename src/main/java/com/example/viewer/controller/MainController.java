@@ -135,7 +135,7 @@ public class MainController {
         subScene.widthProperty().bind(subSceneHolder.widthProperty());
         subScene.heightProperty().bind(subSceneHolder.heightProperty());
 
-        randomizeParameters();
+        resetToDefaults();
     }
 
     private MenuBar createMenuBar() {
