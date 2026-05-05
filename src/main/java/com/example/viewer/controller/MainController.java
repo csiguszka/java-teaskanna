@@ -54,24 +54,29 @@ public class MainController {
         vaseMesh = createVaseMesh(currentParams);
         PhongMaterial vaseMaterial = new PhongMaterial(currentParams.bodyColor.get());
         vaseMesh.setMaterial(vaseMaterial);
+        vaseMesh.setVisible(currentParams.bodyVisible.get());
         
         handleMesh = createHandleMesh(currentParams);
         PhongMaterial handleMaterial = new PhongMaterial(currentParams.handleColor.get());
         handleMesh.setMaterial(handleMaterial);
+        handleMesh.setVisible(currentParams.handleVisible.get());
         Rotate handleRotation = new Rotate(-90, Rotate.Z_AXIS);
         handleMesh.getTransforms().add(handleRotation);
 
         lidDomeMesh = createLidDomeMesh(currentParams);
         PhongMaterial lidDomeMaterial = new PhongMaterial(currentParams.lidDomeColor.get());
         lidDomeMesh.setMaterial(lidDomeMaterial);
+        lidDomeMesh.setVisible(currentParams.lidVisible.get());
         
         lidKnobMesh = createLidKnobMesh(currentParams);
         PhongMaterial lidKnobMaterial = new PhongMaterial(currentParams.lidKnobColor.get());
         lidKnobMesh.setMaterial(lidKnobMaterial);
+        lidKnobMesh.setVisible(currentParams.lidVisible.get());
         
         spoutMesh = createSpoutMesh(currentParams);
         PhongMaterial spoutMaterial = new PhongMaterial(currentParams.bodyColor.get());
         spoutMesh.setMaterial(spoutMaterial);
+        spoutMesh.setVisible(currentParams.spoutVisible.get());
 
         objectGroup.getChildren().addAll(vaseMesh, spoutMesh, handleMesh, lidDomeMesh, lidKnobMesh);
         worldGroup.getChildren().add(objectGroup);

@@ -50,4 +50,10 @@ public class VaseParameters {
     // Light toggle properties
     public final javafx.beans.property.BooleanProperty ambientLightEnabled = new javafx.beans.property.SimpleBooleanProperty(true);
     public final javafx.beans.property.BooleanProperty pointLightEnabled = new javafx.beans.property.SimpleBooleanProperty(true);
+    
+    // Visibility properties for each component
+    public final javafx.beans.property.BooleanProperty bodyVisible = new javafx.beans.property.SimpleBooleanProperty(true);
+    public final javafx.beans.property.BooleanProperty spoutVisible = new javafx.beans.property.SimpleBooleanProperty(true);
+    public final javafx.beans.property.BooleanProperty handleVisible = new javafx.beans.property.SimpleBooleanProperty(true);
+    public final javafx.beans.property.BooleanProperty lidVisible = new javafx.beans.property.SimpleBooleanProperty(true);
 }

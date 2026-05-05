@@ -38,6 +38,16 @@ public class ControlPanel {
         
         panel.getChildren().add(createToggleControl("Környezeti fény", params.ambientLightEnabled));
         panel.getChildren().add(createToggleControl("Pont fényforrás", params.pointLightEnabled));
+        
+        // Visibility controls section
+        Label visibilityTitle = new Label("Láthatóság");
+        visibilityTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
+        panel.getChildren().add(visibilityTitle);
+        
+        panel.getChildren().add(createVisibilityToggleControl("Test", params.bodyVisible, vase));
+        panel.getChildren().add(createVisibilityToggleControl("Kiöntő", params.spoutVisible, spout));
+        panel.getChildren().add(createVisibilityToggleControl("Fogó", params.handleVisible, handle));
+        panel.getChildren().add(createVisibilityToggleControl("Tető", params.lidVisible, lidDome, lidKnob));
         panel.getChildren().add(createSliderControl("Magassag", params.height, 170, 280, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Falvastagsag", params.wallThickness, 4, 10, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Hasasodas", params.bellyAmount, 6, 46, vase, spout, handle, lidDome, lidKnob, params));
@@ -190,6 +200,34 @@ public class ControlPanel {
         checkBox.setStyle("-fx-background-color: #3c3c46; -fx-border-color: #5a5a68;");
         
         checkBox.selectedProperty().bindBidirectional(property);
+        
+        HBox hbox = new HBox(10, label, checkBox);
+        hbox.setStyle("-fx-alignment: center-left;");
+        return hbox;
+    }
+    
+    private static HBox createVisibilityToggleControl(String labelText, javafx.beans.property.BooleanProperty property, MeshView... meshes) {
+        Label label = new Label(labelText);
+        label.setStyle("-fx-text-fill: #e7e7e7; -fx-font-size: 14px;");
+        label.setPrefWidth(120);
+        
+        CheckBox checkBox = new CheckBox();
+        checkBox.setSelected(property.get());
+        checkBox.setStyle("-fx-background-color: #3c3c46; -fx-border-color: #5a5a68;");
+        
+        checkBox.selectedProperty().bindBidirectional(property);
+        
+        // Update visibility of meshes when property changes
+        property.addListener((obs, oldVal, newVal) -> {
+            for (MeshView mesh : meshes) {
+                mesh.setVisible(newVal);
+            }
+        });
+        
+        // Set initial visibility
+        for (MeshView mesh : meshes) {
+            mesh.setVisible(property.get());
+        }
         
         HBox hbox = new HBox(10, label, checkBox);
         hbox.setStyle("-fx-alignment: center-left;");
