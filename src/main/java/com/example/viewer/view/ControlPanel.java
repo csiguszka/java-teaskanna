@@ -17,7 +17,7 @@ public class ControlPanel {
         panel.setPadding(new Insets(14, 14, 14, 14));
         panel.setStyle("-fx-background-color: #2c2c36; -fx-border-color: #4a4a58; -fx-border-width: 0 1 0 0;");
 
-        Label title = new Label("Kancsó paraméterek");
+        Label title = new Label("Teáskanna paraméterek");
         title.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold;");
         panel.getChildren().add(title);
         
@@ -31,7 +31,7 @@ public class ControlPanel {
         panel.getChildren().add(createColorControl("Tető félgömb színe", params.lidDomeColor, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createColorControl("Tető fogó színe", params.lidKnobColor, vase, spout, handle, lidDome, lidKnob, params));
         
-        Label vaseTitle = new Label("Kancsó paraméterek");
+        Label vaseTitle = new Label("Test paraméterek");
         vaseTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(vaseTitle);
         
