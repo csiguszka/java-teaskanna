@@ -92,7 +92,7 @@ public class ControlPanel {
         label.setPrefWidth(100);
         
         ColorPicker colorPicker = new ColorPicker(colorProperty.get());
-        colorPicker.setStyle("-fx-background-color: #3c3c46; -fx-border-color: #5a5a68;");
+        colorPicker.setStyle("-fx-background-color: #3c3c46; -fx-border-color: #5a5a68; -fx-color-label-visible: false; -fx-pref-width: 30px; -fx-max-width: 30px;");
         colorPicker.setPrefWidth(120);
         colorPicker.valueProperty().bindBidirectional(colorProperty);
         colorProperty.addListener((obs, oldVal, newVal) -> updateMeshColors(vase, spout, handle, lidDome, lidKnob, params));
