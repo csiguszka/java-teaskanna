@@ -53,13 +53,13 @@ public class ControlPanel {
         panel.getChildren().add(lidTitle);
         panel.getChildren().add(createSliderControl("Tető magasság", params.lidHeight, 20, 56, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Fogó magasság", params.knobHeight, 8, 42, vase, spout, handle, lidDome, lidKnob, params));
-        panel.getChildren().add(createSliderControl("Fogó sugár", params.knobRadius, 10, 20, vase, spout, handle, lidDome, lidKnob, params));
+        panel.getChildren().add(createSliderControl("Fogó sugár", params.knobRadius, 13, 26, vase, spout, handle, lidDome, lidKnob, params));
         
         Label handleTitle = new Label("Fogó paraméterek");
         handleTitle.setStyle("-fx-text-fill: #f2f2f2; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10px 0px 5px 0px;");
         panel.getChildren().add(handleTitle);
         panel.getChildren().add(createSliderControl("Fogó meret", params.handleSize, 20, 80, vase, spout, handle, lidDome, lidKnob, params));
-        panel.getChildren().add(createSliderControl("Fogó pozíció", params.handlePos, -140, 140, vase, spout, handle, lidDome, lidKnob, params));
+        panel.getChildren().add(createSliderControl("Fogó pozíció", params.handlePos, -70, 150, vase, spout, handle, lidDome, lidKnob, params));
         panel.getChildren().add(createSliderControl("Fogó vastagság", params.handleThickness, 4, 16, vase, spout, handle, lidDome, lidKnob, params));
         
         // Spacer at bottom so the last item is fully scrollable into view
