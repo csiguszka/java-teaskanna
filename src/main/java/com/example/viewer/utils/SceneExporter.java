@@ -1,130 +1,139 @@
-package com.example.viewer.utils;
+﻿package com.example.viewer.utils;
 
 import com.example.viewer.model.VaseParameters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
 import java.io.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.nio.file.Files;
 
-/**
- * Simple JSON-based export/import for VaseParameters.
- * No external libraries required – uses hand-written serialization.
- */
 public class SceneExporter {
 
-    // ------------------------------------------------------------------ export
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static void exportToFile(VaseParameters params, Window owner) {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Exportálás");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON fájl", "*.json"));
-        chooser.setInitialFileName("kancso.json");
+        chooser.setTitle("Exportalas");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON fajl", "*.json"));
+        chooser.setInitialFileName("vaza.json");
 
         File file = chooser.showSaveDialog(owner);
         if (file == null) return;
 
-        try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
-            pw.println("{");
-            pw.println("  \"height\": " + params.height.get() + ",");
-            pw.println("  \"wallThickness\": " + params.wallThickness.get() + ",");
-            pw.println("  \"bellyAmount\": " + params.bellyAmount.get() + ",");
-            pw.println("  \"neckTaper\": " + params.neckTaper.get() + ",");
-            pw.println("  \"baseRadius\": " + params.baseRadius.get() + ",");
-            pw.println("  \"radialSegments\": " + params.radialSegments.get() + ",");
-            pw.println("  \"spoutLength\": " + params.spoutLength.get() + ",");
-            pw.println("  \"spoutWidth\": " + params.spoutWidth.get() + ",");
-            pw.println("  \"spoutLift\": " + params.spoutLift.get() + ",");
-            pw.println("  \"lidHeight\": " + params.lidHeight.get() + ",");
-            pw.println("  \"knobHeight\": " + params.knobHeight.get() + ",");
-            pw.println("  \"knobRadius\": " + params.knobRadius.get() + ",");
-            pw.println("  \"handleSize\": " + params.handleSize.get() + ",");
-            pw.println("  \"handleThickness\": " + params.handleThickness.get() + ",");
-            pw.println("  \"handlePos\": " + params.handlePos.get() + ",");
-            pw.println("  \"bodyColor\": \"" + toHex(params.bodyColor.get()) + "\",");
-            pw.println("  \"handleColor\": \"" + toHex(params.handleColor.get()) + "\",");
-            pw.println("  \"lidDomeColor\": \"" + toHex(params.lidDomeColor.get()) + "\",");
-            pw.println("  \"lidKnobColor\": \"" + toHex(params.lidKnobColor.get()) + "\",");
-            pw.println("  \"ambientLightEnabled\": " + params.ambientLightEnabled.get() + ",");
-            pw.println("  \"pointLightEnabled\": " + params.pointLightEnabled.get());
-            pw.println("}");
+        JsonObject obj = new JsonObject();
+        obj.addProperty("height",              params.height.get());
+        obj.addProperty("wallThickness",       params.wallThickness.get());
+        obj.addProperty("bellyAmount",         params.bellyAmount.get());
+        obj.addProperty("neckTaper",           params.neckTaper.get());
+        obj.addProperty("baseRadius",          params.baseRadius.get());
+        obj.addProperty("radialSegments",      params.radialSegments.get());
+        obj.addProperty("spoutLength",         params.spoutLength.get());
+        obj.addProperty("spoutWidth",          params.spoutWidth.get());
+        obj.addProperty("spoutLift",           params.spoutLift.get());
+        obj.addProperty("lidHeight",           params.lidHeight.get());
+        obj.addProperty("knobHeight",          params.knobHeight.get());
+        obj.addProperty("knobRadius",          params.knobRadius.get());
+        obj.addProperty("handleSize",          params.handleSize.get());
+        obj.addProperty("handleThickness",     params.handleThickness.get());
+        obj.addProperty("handlePos",           params.handlePos.get());
+        obj.addProperty("bodyColor",           toHex(params.bodyColor.get()));
+        obj.addProperty("handleColor",         toHex(params.handleColor.get()));
+        obj.addProperty("lidDomeColor",        toHex(params.lidDomeColor.get()));
+        obj.addProperty("lidKnobColor",        toHex(params.lidKnobColor.get()));
+        obj.addProperty("ambientLightEnabled", params.ambientLightEnabled.get());
+        obj.addProperty("pointLightEnabled",   params.pointLightEnabled.get());
+        obj.addProperty("bodyVisible",         params.bodyVisible.get());
+        obj.addProperty("spoutVisible",        params.spoutVisible.get());
+        obj.addProperty("handleVisible",       params.handleVisible.get());
+        obj.addProperty("lidVisible",          params.lidVisible.get());
+
+        try (Writer writer = new FileWriter(file)) {
+            GSON.toJson(obj, writer);
         } catch (IOException ex) {
             showError("Export hiba: " + ex.getMessage());
         }
     }
 
-    // ------------------------------------------------------------------ import
-
     public static void importFromFile(VaseParameters params, Window owner) {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Importálás");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON fájl", "*.json"));
+        chooser.setTitle("Importalas");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON fajl", "*.json"));
 
         File file = chooser.showOpenDialog(owner);
         if (file == null) return;
 
         try {
-            String json = readFile(file);
-            params.height.set(readDouble(json, "height", params.height.get()));
-            params.wallThickness.set(readDouble(json, "wallThickness", params.wallThickness.get()));
-            params.bellyAmount.set(readDouble(json, "bellyAmount", params.bellyAmount.get()));
-            params.neckTaper.set(readDouble(json, "neckTaper", params.neckTaper.get()));
-            params.baseRadius.set(readDouble(json, "baseRadius", params.baseRadius.get()));
-            params.radialSegments.set((int) Math.round(readDouble(json, "radialSegments", params.radialSegments.get())));
-            params.spoutLength.set(readDouble(json, "spoutLength", params.spoutLength.get()));
-            params.spoutWidth.set(readDouble(json, "spoutWidth", params.spoutWidth.get()));
-            params.spoutLift.set(readDouble(json, "spoutLift", params.spoutLift.get()));
-            params.lidHeight.set(readDouble(json, "lidHeight", params.lidHeight.get()));
-            params.knobHeight.set(readDouble(json, "knobHeight", params.knobHeight.get()));
-            params.knobRadius.set(readDouble(json, "knobRadius", params.knobRadius.get()));
-            params.handleSize.set(readDouble(json, "handleSize", params.handleSize.get()));
-            params.handleThickness.set(readDouble(json, "handleThickness", params.handleThickness.get()));
-            params.handlePos.set(readDouble(json, "handlePos", params.handlePos.get()));
-            params.bodyColor.set(readColor(json, "bodyColor", params.bodyColor.get()));
-            params.handleColor.set(readColor(json, "handleColor", params.handleColor.get()));
-            params.lidDomeColor.set(readColor(json, "lidDomeColor", params.lidDomeColor.get()));
-            params.lidKnobColor.set(readColor(json, "lidKnobColor", params.lidKnobColor.get()));
-            params.ambientLightEnabled.set(readBoolean(json, "ambientLightEnabled", params.ambientLightEnabled.get()));
-            params.pointLightEnabled.set(readBoolean(json, "pointLightEnabled", params.pointLightEnabled.get()));
-        } catch (IOException ex) {
+            String json = Files.readString(file.toPath());
+            JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
+
+            // Parse everything into locals first — if anything throws, params is left untouched
+            double       height              = obj.has("height")              ? obj.get("height").getAsDouble()              : params.height.get();
+            double       wallThickness       = obj.has("wallThickness")       ? obj.get("wallThickness").getAsDouble()       : params.wallThickness.get();
+            double       bellyAmount         = obj.has("bellyAmount")         ? obj.get("bellyAmount").getAsDouble()         : params.bellyAmount.get();
+            double       neckTaper           = obj.has("neckTaper")           ? obj.get("neckTaper").getAsDouble()           : params.neckTaper.get();
+            double       baseRadius          = obj.has("baseRadius")          ? obj.get("baseRadius").getAsDouble()          : params.baseRadius.get();
+            int          radialSegments      = obj.has("radialSegments")      ? obj.get("radialSegments").getAsInt()         : params.radialSegments.get();
+            double       spoutLength         = obj.has("spoutLength")         ? obj.get("spoutLength").getAsDouble()         : params.spoutLength.get();
+            double       spoutWidth          = obj.has("spoutWidth")          ? obj.get("spoutWidth").getAsDouble()          : params.spoutWidth.get();
+            double       spoutLift           = obj.has("spoutLift")           ? obj.get("spoutLift").getAsDouble()           : params.spoutLift.get();
+            double       lidHeight           = obj.has("lidHeight")           ? obj.get("lidHeight").getAsDouble()           : params.lidHeight.get();
+            double       knobHeight          = obj.has("knobHeight")          ? obj.get("knobHeight").getAsDouble()          : params.knobHeight.get();
+            double       knobRadius          = obj.has("knobRadius")          ? obj.get("knobRadius").getAsDouble()          : params.knobRadius.get();
+            double       handleSize          = obj.has("handleSize")          ? obj.get("handleSize").getAsDouble()          : params.handleSize.get();
+            double       handleThickness     = obj.has("handleThickness")     ? obj.get("handleThickness").getAsDouble()     : params.handleThickness.get();
+            double       handlePos           = obj.has("handlePos")           ? obj.get("handlePos").getAsDouble()           : params.handlePos.get();
+            Color        bodyColor           = obj.has("bodyColor")           ? Color.web(obj.get("bodyColor").getAsString())           : params.bodyColor.get();
+            Color        handleColor         = obj.has("handleColor")         ? Color.web(obj.get("handleColor").getAsString())         : params.handleColor.get();
+            Color        lidDomeColor        = obj.has("lidDomeColor")        ? Color.web(obj.get("lidDomeColor").getAsString())        : params.lidDomeColor.get();
+            Color        lidKnobColor        = obj.has("lidKnobColor")        ? Color.web(obj.get("lidKnobColor").getAsString())        : params.lidKnobColor.get();
+            boolean      ambientLightEnabled = obj.has("ambientLightEnabled") ? obj.get("ambientLightEnabled").getAsBoolean() : params.ambientLightEnabled.get();
+            boolean      pointLightEnabled   = obj.has("pointLightEnabled")   ? obj.get("pointLightEnabled").getAsBoolean()   : params.pointLightEnabled.get();
+            boolean      bodyVisible         = obj.has("bodyVisible")         ? obj.get("bodyVisible").getAsBoolean()         : params.bodyVisible.get();
+            boolean      spoutVisible        = obj.has("spoutVisible")        ? obj.get("spoutVisible").getAsBoolean()        : params.spoutVisible.get();
+            boolean      handleVisible       = obj.has("handleVisible")       ? obj.get("handleVisible").getAsBoolean()       : params.handleVisible.get();
+            boolean      lidVisible          = obj.has("lidVisible")          ? obj.get("lidVisible").getAsBoolean()          : params.lidVisible.get();
+
+            // All values parsed successfully — apply atomically
+            params.height.set(height);
+            params.wallThickness.set(wallThickness);
+            params.bellyAmount.set(bellyAmount);
+            params.neckTaper.set(neckTaper);
+            params.baseRadius.set(baseRadius);
+            params.radialSegments.set(radialSegments);
+            params.spoutLength.set(spoutLength);
+            params.spoutWidth.set(spoutWidth);
+            params.spoutLift.set(spoutLift);
+            params.lidHeight.set(lidHeight);
+            params.knobHeight.set(knobHeight);
+            params.knobRadius.set(knobRadius);
+            params.handleSize.set(handleSize);
+            params.handleThickness.set(handleThickness);
+            params.handlePos.set(handlePos);
+            params.bodyColor.set(bodyColor);
+            params.handleColor.set(handleColor);
+            params.lidDomeColor.set(lidDomeColor);
+            params.lidKnobColor.set(lidKnobColor);
+            params.ambientLightEnabled.set(ambientLightEnabled);
+            params.pointLightEnabled.set(pointLightEnabled);
+            params.bodyVisible.set(bodyVisible);
+            params.spoutVisible.set(spoutVisible);
+            params.handleVisible.set(handleVisible);
+            params.lidVisible.set(lidVisible);
+        } catch (Exception ex) {
             showError("Import hiba: " + ex.getMessage());
         }
     }
 
-    // ----------------------------------------------------------------- helpers
-
     private static String toHex(Color c) {
         return String.format("#%02X%02X%02X",
-                (int) Math.round(c.getRed() * 255),
+                (int) Math.round(c.getRed()   * 255),
                 (int) Math.round(c.getGreen() * 255),
-                (int) Math.round(c.getBlue() * 255));
-    }
-
-    private static String readFile(File file) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) sb.append(line).append('\n');
-        }
-        return sb.toString();
-    }
-
-    private static double readDouble(String json, String key, double fallback) {
-        Matcher m = Pattern.compile("\"" + key + "\"\\s*:\\s*(-?[\\d.eE+\\-]+)").matcher(json);
-        return m.find() ? Double.parseDouble(m.group(1)) : fallback;
-    }
-
-    private static boolean readBoolean(String json, String key, boolean fallback) {
-        Matcher m = Pattern.compile("\"" + key + "\"\\s*:\\s*(true|false)").matcher(json);
-        return m.find() ? Boolean.parseBoolean(m.group(1)) : fallback;
-    }
-
-    private static Color readColor(String json, String key, Color fallback) {
-        Matcher m = Pattern.compile("\"" + key + "\"\\s*:\\s*\"(#[0-9A-Fa-f]{6})\"").matcher(json);
-        if (!m.find()) return fallback;
-        try { return Color.web(m.group(1)); } catch (Exception e) { return fallback; }
+                (int) Math.round(c.getBlue()  * 255));
     }
 
     private static void showError(String message) {
@@ -137,3 +146,4 @@ public class SceneExporter {
         });
     }
 }
+
