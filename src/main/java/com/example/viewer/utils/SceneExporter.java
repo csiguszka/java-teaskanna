@@ -1,4 +1,4 @@
-﻿package com.example.viewer.utils;
+package com.example.viewer.utils;
 
 import com.example.viewer.model.VaseParameters;
 import com.google.gson.Gson;
